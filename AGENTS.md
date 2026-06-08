@@ -56,6 +56,7 @@ Harness Engineering 在本仓库中只作为工程方法使用，用于加强导
 | 统一记录任务执行状态 | [docs/plans/task-status-template.md](docs/plans/task-status-template.md) |
 | 统一沉淀验证证据 | [docs/reviews/templates/verification-evidence-template.md](docs/reviews/templates/verification-evidence-template.md) |
 | 了解文档链接规范 | [docs/conventions/document-links.md](docs/conventions/document-links.md) |
+| 了解文档元数据规范 | [docs/conventions/document-metadata.md](docs/conventions/document-metadata.md) |
 | 开发后端代码并做自检 | [docs/README.md](docs/README.md) |
 | 做后端代码评审 | [docs/reviews/backend-code-review-checklist.md](docs/reviews/backend-code-review-checklist.md) |
 | 了解模块边界和依赖规则 | [docs/architecture/boundaries.md](docs/architecture/boundaries.md) |
