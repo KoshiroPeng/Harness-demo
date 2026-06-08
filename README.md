@@ -2,7 +2,7 @@
 
 HarnessBase 当前是一个基于 `RuoYi-Vue-Plus 5.6.1` 的多租户后台管理系统重构工作区。真实代码主线由 `server/` 后端、`web/` 前端、`deploy/` 发布与观测支撑材料、`docs/` 协作文档组成。
 
-本仓库曾经存在 `ProjectPilot`、`CallCenter`、`Harness-demo`、`HernessDemo` 等历史命名和过渡说明。后续文档以当前代码事实为准：系统核心不是项目管理 MVP，而是 RuoYi-Vue-Plus 体系下的后台管理、租户、权限、系统配置、代码生成、工作流、监控与示例能力。
+本仓库曾经存在历史命名和过渡说明。后续文档以 `HarnessBase` 和当前代码事实为准：系统核心不是项目管理 MVP，而是 RuoYi-Vue-Plus 体系下的后台管理、租户、权限、系统配置、代码生成、工作流、监控与示例能力。
 
 ## 快速入口
 
