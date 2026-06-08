@@ -15,7 +15,7 @@ description: HernessDemo 后续待办列表，覆盖文档代码对齐、workflo
 
 ## P1：文档事实同步
 
-- 基于 [docs/design/feature-admin-domains.md](../design/feature-admin-domains.md) 按需拆分更细的 system、monitor、tool/gen、workflow、demo 子域设计；没有实际开发任务前不继续扩张文档数量。
+- 文档治理主线已完成；后续仅在实际开发任务触发时，基于 [docs/design/feature-admin-domains.md](../design/feature-admin-domains.md) 按需拆分更细的 system、monitor、tool/gen、workflow、demo 子域设计。
 - 持续校准 [docs/reference/api-spec.yaml](../reference/api-spec.yaml)，确保仓库级 API 摘要与 SpringDoc、真实 Controller 和前端 [web/src/api](../../web/src/api) 保持一致。
 - 持续维护 [docs/reference/error-codes.md](../reference/error-codes.md)，确保它与当前 `R`、`TableDataInfo`、`HttpStatus`、i18n 消息、`GlobalExceptionHandler`、`SaTokenExceptionHandler` 对齐。
 - 持续维护 [docs/reference/sql-change-checklist.md](../reference/sql-change-checklist.md)，确保 SQL 变更模板和验证清单跟当前脚本体系一致。
