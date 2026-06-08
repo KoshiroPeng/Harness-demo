@@ -47,12 +47,12 @@ mvn -B test
 
 ```bash
 cd web
-npm install
-npm run dev
-npm run build:prod
+pnpm install
+pnpm dev
+pnpm build:prod
 ```
 
-当前前端没有锁文件固定包管理器；如后续统一为 `npm`、`pnpm` 或其他工具，应同步提交锁文件并更新本文档。
+当前前端通过 [web/pnpm-lock.yaml](web/pnpm-lock.yaml) 和 `packageManager` 字段固定 `pnpm` 依赖解析。
 
 本地观测：
 

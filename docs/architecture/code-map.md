@@ -111,7 +111,7 @@ flowchart TD
 
 - 包名为 `ruoyi-vue-plus`。
 - 使用 Vue 3、TypeScript、Vite、Element Plus、Pinia、Vue Router、VXE Table。
-- 当前没有 `pnpm-lock.yaml`、`package-lock.json` 或 `yarn.lock`，包管理器未由锁文件固定。
+- 依赖解析由 [web/pnpm-lock.yaml](../../web/pnpm-lock.yaml) 和 [web/package.json](../../web/package.json) 中的 `packageManager` 字段固定。
 
 ```text
 web/

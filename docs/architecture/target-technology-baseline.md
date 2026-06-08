@@ -44,8 +44,9 @@ description: HernessDemo 技术基线文档，记录当前 RuoYi-Vue-Plus 后端
 | 样式与工具 | Sass、UnoCSS、Prettier、ESLint |
 | 测试 | Vitest |
 | Node 要求 | `>=20.19.0` |
+| 包管理器 | pnpm |
 
-当前没有锁文件固定包管理器。新增文档或脚本不要假定已经使用 `pnpm`，除非本次任务同步引入锁文件和验证命令。
+当前前端依赖由 [web/pnpm-lock.yaml](../../web/pnpm-lock.yaml) 和 [web/package.json](../../web/package.json) 中的 `packageManager` 字段固定。新增前端依赖时必须同步更新锁文件。
 
 ## 数据库基线
 
