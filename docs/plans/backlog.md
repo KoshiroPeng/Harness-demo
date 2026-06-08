@@ -2,7 +2,7 @@
 last_updated: 2026-06-09
 status: active
 owner: "@PengKang"
-description: HarnessBase 后续待办列表，覆盖文档代码对齐、workflow 修正、SQL 治理、发布支撑与 Harness 自动化。
+description: HarnessBase 后续待办列表，覆盖业务扩展基线、文档代码对齐、workflow 修正、SQL 治理、发布支撑与 Harness 自动化。
 ---
 
 # Backlog
@@ -15,6 +15,7 @@ description: HarnessBase 后续待办列表，覆盖文档代码对齐、workflo
 
 ## P1：文档事实同步
 
+- 基于 [docs/architecture/business-extension-baseline.md](../architecture/business-extension-baseline.md) 持续把后续业务开发沉淀为可复用的纵向切片模板。
 - 文档治理主线已完成；后续仅在实际开发任务触发时，基于 [docs/design/feature-admin-domains.md](../design/feature-admin-domains.md) 按需拆分更细的 system、monitor、tool/gen、workflow、demo 子域设计。
 - 持续校准 [docs/reference/api-spec.yaml](../reference/api-spec.yaml)，确保仓库级 API 摘要与 SpringDoc、真实 Controller 和前端 [web/src/api](../../web/src/api) 保持一致。
 - 持续维护 [docs/reference/error-codes.md](../reference/error-codes.md)，确保它与当前 `R`、`TableDataInfo`、`HttpStatus`、i18n 消息、`GlobalExceptionHandler`、`SaTokenExceptionHandler` 对齐。
@@ -43,10 +44,12 @@ description: HarnessBase 后续待办列表，覆盖文档代码对齐、workflo
 - 增加历史事实误用扫描。
 - 增加 workflow 路径存在性检查。
 - 增加 SQL 变更触发文档同步提醒。
+- 增加新增业务功能时的纵向切片检查，提醒同步后端、前端、SQL、权限、API、测试和验证证据。
 
 ## Backlog 维护规则
 
 - 每个任务进入迭代前必须有明确验收标准。
+- 新增业务功能进入迭代前必须先核对 [docs/architecture/business-extension-baseline.md](../architecture/business-extension-baseline.md)。
 - 涉及架构或边界变化的任务必须同步 [docs/architecture/code-map.md](../architecture/code-map.md) 与 [docs/architecture/README.md](../architecture/README.md)。
 - 涉及 API 的任务必须同步 [docs/reference/api-spec.yaml](../reference/api-spec.yaml)。
 - 涉及响应码或错误消息的任务必须同步 [docs/reference/error-codes.md](../reference/error-codes.md)。
