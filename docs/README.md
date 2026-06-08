@@ -14,6 +14,22 @@ owner: "@PengKang"
 
 如果你不确定该先看哪份文档，先看本文档，再根据当前任务进入对应场景。
 
+如果你已经知道要看的文档目录，也可以直接从“按目录浏览”进入对应目录首页。
+
+## 按目录浏览
+
+| 文档目录 | 入口 |
+| --- | --- |
+| 架构文档 | [docs/architecture/overview.md](architecture/overview.md) |
+| 编码规范 | [docs/conventions/README.md](conventions/README.md) |
+| 交付文档 | [docs/delivery/README.md](delivery/README.md) |
+| 运维文档 | [docs/operations/README.md](operations/README.md) |
+| 设计文档 | [docs/design/README.md](design/README.md) |
+| 计划文档 | [docs/plans/README.md](plans/README.md) |
+| 参考文档 | [docs/reference/README.md](reference/README.md) |
+| 评审清单 | [docs/reviews/README.md](reviews/README.md) |
+| 治理文档 | [docs/governance/README.md](governance/README.md) |
+
 ## 场景导航
 
 | 我现在要做什么 | 优先阅读 |
@@ -82,8 +98,8 @@ owner: "@PengKang"
 做需求评审时，建议阅读：
 
 1. [docs/reviews/requirement-review-checklist.md](reviews/requirement-review-checklist.md)
-2. [docs/design/](design/)
-3. [docs/plans/current-sprint.md](plans/current-sprint.md)
+2. [docs/design/README.md](design/README.md)
+3. [docs/plans/README.md](plans/README.md)
 4. [docs/architecture/overview.md](architecture/overview.md)
 
 若需求涉及认证、搜索、计费等既有方向，可补读：
@@ -125,4 +141,5 @@ owner: "@PengKang"
 ## 维护规则
 
 - 新增文档后，如果会影响“开发、测试、评审、交付”的主路径，必须同步更新本文档。
+- 新增目录级文档后，应优先补齐该目录的 `README.md` 或等价索引页，再把入口接入本文档。
 - 如果一个任务需要同时参考多份文档，应优先把“文档组合”补进本文档，而不是让使用者自己猜。
