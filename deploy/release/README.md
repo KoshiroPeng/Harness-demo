@@ -2,42 +2,56 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 发布支撑目录入口，汇总发布、回滚、初始化与验证相关材料。
+description: HernessDemo 发布支撑目录入口，汇总发布、回滚、初始化、验证脚本和当前 workflow 历史残留风险。
 ---
 
 # 发布脚本说明
 
-本目录用于承载 ProjectPilot 的发布编排辅助脚本，目标是把“发布计划生成”“发布后验证”“回滚检查”逐步从文档约定演进为可执行资产。
+本目录承载 HernessDemo 的发布编排辅助脚本，目标是把发布计划、发布后验证、远端部署和回滚检查沉淀为可执行资产。
 
-这些材料在当前仓库中的定位是“产品交付支撑层”，不是当前项目主线本身。它们存在的目的，是帮助 Web MVP 和后续基线迁移更稳地发布，而不是把仓库重新带回平台化建设主线。
+## 当前状态
 
-当前文件说明：
+当前发布脚本本身位于 [deploy/release](.)，但 `.github/workflows` 中部分 workflow 仍引用历史 `services/callcenter-server` 路径。真实发布前必须先修正 workflow 和制品路径，不能直接把现有 GitHub Actions 当成可用发布链路。
 
-- `render-release-plan.sh`：根据环境、版本号和 `dry-run` 标记生成发布计划。
-- `verify-release.sh`：对目标环境执行最小发布后验证，重点检查健康检查和指标端点。
-- `deploy-via-ssh.sh`：通过 SSH 与 SCP 执行最小远端发布骨架。
-- `rollback-via-ssh.sh`：通过 SSH 执行指定版本制品的远端回滚。
-- `herness-demo.service.template`：历史命名下的 systemd 服务模板，供正式环境标准化托管时参考。
-- `bootstrap-remote-host.sh`：首次初始化远端主机目录、环境文件与 systemd 服务。
+真实后端源码入口是 [server](../../server)，后端 Jar 构建入口是 [server/ruoyi-admin](../../server/ruoyi-admin)。
 
-配套文档入口：
+## 当前文件说明
 
-- [deploy/release/release-checklist.md](release-checklist.md)：发布、验证与回滚前后的最小检查清单。
-- [deploy/release/environment-variable-template.md](environment-variable-template.md)：环境变量和密钥准备模板。
-- [.github/workflows/bootstrap-remote-host.yml](../../.github/workflows/bootstrap-remote-host.yml)：主机初始化工作流。
-- [.github/workflows/server-release.yml](../../.github/workflows/server-release.yml)：发布工作流。
-- [.github/workflows/server-rollback.yml](../../.github/workflows/server-rollback.yml)：回滚工作流。
+- [render-release-plan.sh](render-release-plan.sh)：根据环境、版本号和 `dry-run` 标记生成发布计划。
+- [verify-release.sh](verify-release.sh)：对目标环境执行最小发布后验证，重点检查健康检查和指标端点。
+- [deploy-via-ssh.sh](deploy-via-ssh.sh)：通过 SSH 与 SCP 执行最小远端发布骨架。
+- [rollback-via-ssh.sh](rollback-via-ssh.sh)：通过 SSH 执行指定版本制品的远端回滚。
+- [herness-demo.service.template](herness-demo.service.template)：历史命名下的 systemd 服务模板，供正式环境标准化托管时参考。
+- [bootstrap-remote-host.sh](bootstrap-remote-host.sh)：首次初始化远端主机目录、环境文件与 systemd 服务。
+- [release-checklist.md](release-checklist.md)：发布、验证与回滚前后的最小检查清单。
+- [environment-variable-template.md](environment-variable-template.md)：环境变量和密钥准备模板。
 
-## 与新基线的关系
+## Workflow 风险
 
-当前脚本与工作流仍可能带有历史命名或旧运行时假设。后续在代码迁移到 JDK 17 / Spring Boot 3.x 后，本目录应继续收敛到以下方向：
+以下 workflow 需要先核对和修正后再使用：
 
-1. 发布说明围绕新的后端与前端主线组织。
-2. 若 `web/` 真正落地联合交付，再补充 Compose、Nginx 或统一运维入口。
-3. 保持支撑层定位，不把发布目录扩张成新的平台体系。
+- [.github/workflows/agent-guardrails.yml](../../.github/workflows/agent-guardrails.yml)
+- [.github/workflows/server-release.yml](../../.github/workflows/server-release.yml)
+- [.github/workflows/server-rollback.yml](../../.github/workflows/server-rollback.yml)
+- [.github/workflows/bootstrap-remote-host.yml](../../.github/workflows/bootstrap-remote-host.yml)
 
-## 纠偏提醒
+重点检查：
 
-- 如果某项发布材料不能直接帮助当前 Web MVP 交付或基线迁移，应先进入 backlog，而不是立即扩张为新体系。
-- 如果讨论中引用 Harness Engineering，应优先理解为“增强交付验证与可追踪性”，而不是恢复一整套交付平台专题文档。
-- 如果你是从开发任务跳转到这里，建议同时对照 [deploy/release/release-checklist.md](release-checklist.md) 与 [docs/README.md](../../docs/README.md) 使用。
+- `working-directory` 是否指向 [server](../../server)。
+- Maven cache path 是否指向 [server/pom.xml](../../server/pom.xml)。
+- Jar 查找路径是否匹配 `server/ruoyi-admin/target` 的实际产物。
+- 服务名、部署目录和 systemd 模板是否仍使用历史命名。
+
+## 发布前必须确认
+
+1. 后端构建命令在 [server](../../server) 下可执行。
+2. 前端构建命令在 [web](../../web) 下可执行。
+3. SQL 脚本版本与目标环境数据库状态匹配。
+4. 环境变量与密钥已按 [environment-variable-template.md](environment-variable-template.md) 准备。
+5. 发布后验证地址可访问 `/actuator/health` 和 `/actuator/prometheus`。
+
+## Harness 纠偏提醒
+
+- 发布材料的目标是减少真实交付风险，不是扩张新的平台叙事。
+- 发现脚本、workflow、制品名和真实代码路径不一致时，优先修路径和验证，不要继续复制旧说明。
+- 如果发布事项涉及 SQL、API、响应码或观测材料，必须同步更新对应文档。

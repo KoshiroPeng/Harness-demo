@@ -2,48 +2,45 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 当前迭代计划，聚焦新基线对齐、架构融合与 Web 主线准备。
+description: HernessDemo 当前迭代计划，聚焦文档代码对齐、历史残留清理、workflow 路径修正与 Harness 护栏落地。
 ---
 
 # 当前迭代计划
 
 ## 迭代目标
 
-把 ProjectPilot 从“历史基线遗留 + 文档主线分散”的状态，收敛为“目标技术基线明确、后端基线已验证、Web 工程方向明确、迁移路线明确”的状态。
-
-纠偏时继续参考 Harness Engineering，但仅把它作为工程方法，而不是当前产品范围本身。相关说明见 [docs/architecture/harness-engineering-adaptation.md](../architecture/harness-engineering-adaptation.md)。
+把 HernessDemo 从“重构后文档与代码大量不一致”的状态，收敛为“代码地图清楚、文档入口可信、发布路径可核对、Harness 护栏可执行”的状态。
 
 ## 本迭代范围
 
 | 优先级 | 事项 | 产出 |
 | --- | --- | --- |
-| P0 | 统一文档主线到 JDK 17 / Spring Boot 3.x / Vue 3 | [docs/architecture/target-technology-baseline.md](../architecture/target-technology-baseline.md) |
-| P0 | 明确如何吸收 CallCenter 的工程结构经验 | [docs/architecture/callcenter-reference-adaptation.md](../architecture/callcenter-reference-adaptation.md) |
-| P0 | 形成代码迁移路线、验收标准并完成后端最小基线验证 | [docs/plans/jdk17-springboot3-migration-roadmap.md](jdk17-springboot3-migration-roadmap.md) |
-| P1 | 明确后端模块化单体目标结构 | [docs/architecture/overview.md](../architecture/overview.md)、[docs/architecture/boundaries.md](../architecture/boundaries.md) |
-| P1 | 明确 Web 前端目标工程结构 | [docs/design/web-mvp-roadmap.md](../design/web-mvp-roadmap.md) |
-| P2 | 持续维护 API 与错误码基线 | [docs/reference/README.md](../reference/README.md) |
-| P2 | 补齐评审、自检与验证闭环 | [docs/reviews/README.md](../reviews/README.md)、[docs/conventions/README.md](../conventions/README.md) |
-| P3 | 保留最小必要的发布与可观测性支撑材料 | [deploy/release/README.md](../../deploy/release/README.md)、[deploy/observability/README.md](../../deploy/observability/README.md) |
+| P0 | 将文档主线对齐当前 RuoYi-Vue-Plus 代码事实 | [docs/architecture/code-map.md](../architecture/code-map.md)、[docs/architecture/overview.md](../architecture/overview.md) |
+| P0 | 清理 ProjectPilot、CallCenter、Flyway 默认等不匹配叙事 | [docs/README.md](../README.md)、[AGENTS.md](../../AGENTS.md) |
+| P0 | 修正功能设计入口到 system、monitor、tool/gen、workflow、demo 功能域 | [docs/design/backend-admin-roadmap.md](../design/backend-admin-roadmap.md) |
+| P1 | 梳理 SQL 脚本、API、响应码与当前异常模型 | [docs/reference/README.md](../reference/README.md) |
+| P1 | 收敛评审清单和模板，让它们检查真实模块边界 | [docs/reviews/README.md](../reviews/README.md) |
+| P1 | 标记 workflow 和发布脚本中的历史路径风险 | [deploy/release/README.md](../../deploy/release/README.md) |
+| P2 | 将高频文档治理规则转成自动检查计划 | [docs/conventions/harness-automation-roadmap.md](../conventions/harness-automation-roadmap.md) |
 
 ## 开发约束
 
-- 不再把 JDK 1.8、Spring Boot 2.7 或 MySQL 5.7 作为新增设计默认前提。
-- 新代码主线以 JDK 17、Spring Boot 3.x、MySQL 8.x、Vue 3、TypeScript、Vite 为准。
-- 外部集成必须通过 adapter 或 `ApiClient` 抽象。
-- 新增业务代码必须有测试。
-- 涉及数据库结构时必须通过 Flyway migration 管理。
-- 工程治理服务于 Web 产品研发，不反客为主。
+- 当前后端已经是 JDK 17 / Spring Boot 3.5.x，不再把“迁移到 Boot 3”当作待办事实。
+- 当前数据库迁移事实是 SQL 脚本，不是 Flyway。
+- 当前前端已经存在 `web/` Vue 3 应用，不再规划不存在的 `apps/projectpilot-web`。
+- workflow 中仍引用 `services/callcenter-server` 的内容必须视为历史残留。
+- 工程治理服务于当前 RuoYi-Vue-Plus 重构收敛，不反客为主。
 
 ## 验收标准
 
-- 文档导航已经能够明确区分目标基线、迁移路线和 Web 主线。
-- 关键架构文档已经不再以旧基线作为默认事实来源。
-- 已形成面向后续代码升级的可执行迁移路线，且 `server/` 已在新基线下通过最小验证。
-- AI 与人工在开发、评审、测试和发布时都能快速定位应联读的文档。
+- 入口文档不再把当前系统描述为 ProjectPilot 项目管理 MVP。
+- 架构文档能从代码地图定位到真实模块。
+- 设计文档只保留当前系统已有或明确准备扩展的功能域。
+- 发布文档明确当前 workflow 路径风险。
+- 评审、测试、验证材料能检查真实代码结构和文档同步关系。
 
 ## 风险
 
-- `server/` 虽已完成版本基线升级验证，但目标模块化单体结构仍未落地完成。
-- `web/` 尚未完整建立，前端工程方向仍需后续落地。
-- 历史命名、脚本和工作流仍可能带有旧标识。
+- `.github/workflows` 仍可能无法在当前路径下成功构建。
+- `services/callcenter-server` 仍有空目录或构建残留，容易误导自动化。
+- 上游 RuoYi-Vue-Plus README 与仓库级文档存在不同语境，引用时要区分。

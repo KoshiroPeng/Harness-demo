@@ -2,7 +2,7 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 后台设计评审清单，用于检查数据库、接口与后端逻辑设计。
+description: HernessDemo 后台设计评审清单，用于检查数据库、接口、模块边界与后端逻辑设计。
 ---
 
 # 后台设计评审清单
@@ -48,13 +48,10 @@ description: ProjectPilot 后台设计评审清单，用于检查数据库、接
 
 ## 当前项目适配说明
 
-- 表结构与 SQL 应以 MySQL 8.x 作为当前目标主线，并评估索引、排序规则、时间字段和迁移兼容性。
-- 数据库结构变更必须通过 Flyway migration 管理。
-- 后端分层必须遵守模块化单体目标结构与 [docs/architecture/boundaries.md](../architecture/boundaries.md) 中的依赖方向。
-- 外部调用必须通过 adapter 或 `ApiClient` 抽象接入。
+- 表结构与 SQL 应以 [server/script/sql](../../server/script/sql) 的当前脚本体系为事实来源，并评估索引、排序规则、时间字段和升级兼容性。
+- 数据库结构变更必须同步初始化 SQL 和 `update/` 升级脚本；当前不能假定 Flyway 已落地。
+- 后端模块必须遵守 [docs/architecture/boundaries.md](../architecture/boundaries.md) 中的真实 RuoYi-Vue-Plus 模块边界。
+- 外部调用必须通过已有 common 能力、adapter、client 或明确封装类接入。
 - 如果设计以 Harness Engineering 名义引入新平台层、通用流程层或超前抽象，应先对照 [docs/architecture/harness-engineering-adaptation.md](../architecture/harness-engineering-adaptation.md) 做偏航检查。
 - 设计评审中若已确认涉及发布、回滚、环境变量、上线验证或观测要求，应同步参考 [deploy/release/README.md](../../deploy/release/README.md) 与 [deploy/observability/README.md](../../deploy/observability/README.md)。
-- 命名、错误处理、测试策略分别参考：
-- [docs/conventions/naming.md](../conventions/naming.md)
-- [docs/conventions/error-handling.md](../conventions/error-handling.md)
-- [docs/conventions/testing.md](../conventions/testing.md)
+- 命名、错误处理、测试策略分别参考 [docs/conventions/naming.md](../conventions/naming.md)、[docs/conventions/error-handling.md](../conventions/error-handling.md)、[docs/conventions/testing.md](../conventions/testing.md)。

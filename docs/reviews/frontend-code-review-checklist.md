@@ -2,7 +2,7 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 前端代码评审清单，用于检查代码规范、结构合理性与前端逻辑安全性。
+description: HernessDemo 前端代码评审清单，用于检查代码规范、结构合理性与前端逻辑安全性。
 ---
 
 # 前端代码评审清单
@@ -37,11 +37,11 @@ description: ProjectPilot 前端代码评审清单，用于检查代码规范、
 
 ## 当前项目适配说明
 
-- 当前仓库已经明确了 `web/` 主线与目标结构，本清单应按 Vue 3、TypeScript、Vite 与共享包边界执行。
-- 若改动涉及 `apps / packages / tooling` 结构、共享 API 客户端或公共组件，必须评估影响范围并同步更新相关设计文档。
+- 当前仓库已经存在 `web/` Vue 3 应用，本清单应按 Vue 3、TypeScript、Vite、Element Plus、Pinia 与现有目录边界执行。
+- 若改动涉及 `web/src/api`、`web/src/views`、路由、store 或公共组件，必须评估影响范围并同步更新相关设计文档。
 
 ## 配套入口
 
 - [docs/reviews/templates/frontend-code-review-template.md](templates/frontend-code-review-template.md)
-- [docs/design/web-mvp-roadmap.md](../design/web-mvp-roadmap.md)
+- [docs/design/backend-admin-roadmap.md](../design/backend-admin-roadmap.md)
 - [docs/conventions/task-startup-checklist.md](../conventions/task-startup-checklist.md)

@@ -2,14 +2,14 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 文档元数据规范，统一约束内部 Markdown 文档标头字段、适用范围与维护要求。
+description: HernessDemo 文档元数据规范，统一约束内部 Markdown 文档标头字段、适用范围与维护要求。
 ---
 
 # 文档元数据规范
 
 ## 目标
 
-本文档用于统一 ProjectPilot 内部 Markdown 文档的元数据标头写法，减少文档维护过程中的歧义，提升 AI 与人工协作时的可识别性、可追踪性和可导航性。
+本文档用于统一 HernessDemo 内部 Markdown 文档的元数据标头写法，减少文档维护过程中的歧义，提升 AI 与人工协作时的可识别性、可追踪性和可导航性。
 
 ## 适用范围
 

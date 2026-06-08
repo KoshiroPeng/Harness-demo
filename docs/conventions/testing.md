@@ -2,7 +2,7 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 测试规范，约束单元测试、回归测试与验证范围。
+description: HernessDemo 测试规范，约束单元测试、回归测试与验证范围。
 ---
 
 # 测试规范
@@ -25,7 +25,7 @@ description: ProjectPilot 测试规范，约束单元测试、回归测试与验
 | Mapper 测试 | 验证 SQL、映射和 MySQL 兼容性 | MyBatis-Plus 查询 |
 | Controller 测试 | 验证 HTTP 入参与出参、状态码 | REST API |
 | 前端单元测试 | 验证组合式函数、状态管理、共享工具和关键交互逻辑 | store、hook、formatter |
-| 集成测试 | 验证关键链路协同 | 创建项目完整流程 |
+| 集成测试 | 验证关键链路协同 | 登录、用户管理或工作流主链路 |
 
 ## 推荐测试策略
 
@@ -40,9 +40,9 @@ description: ProjectPilot 测试规范，约束单元测试、回归测试与验
 测试类以 `Test` 结尾：
 
 ```text
-ProjectServiceTest
-ProjectControllerTest
-ProjectMapperTest
+SysUserServiceTest
+SysUserControllerTest
+SysUserMapperTest
 ```
 
 测试方法建议使用：
@@ -54,8 +54,8 @@ methodName_shouldExpectedResult_whenCondition
 示例：
 
 ```text
-createProject_shouldReturnProject_whenRequestValid
-createProject_shouldThrowException_whenNameDuplicated
+createUser_shouldReturnSuccess_whenRequestValid
+createUser_shouldFail_whenUserNameDuplicated
 ```
 
 前端测试文件建议与实现文件邻近，使用 `*.test.ts` 或 `*.spec.ts` 命名。

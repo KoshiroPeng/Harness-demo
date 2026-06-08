@@ -2,7 +2,7 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 测试用例评审清单，用于检查需求覆盖、步骤清晰度与回归范围。
+description: HernessDemo 测试用例评审清单，用于检查需求覆盖、步骤清晰度与回归范围。
 ---
 
 # 测试用例评审清单
@@ -33,11 +33,11 @@ description: ProjectPilot 测试用例评审清单，用于检查需求覆盖、
 | 必选 | 8 | 是否规划核心功能回归用例？ |
 | 必选 | 9 | 用例是否有关联需求？ |
 | 可选 | 10 | 缺陷用例是否在描述中体现对应缺陷？ |
-| 必选 | 11 | 用例是否优先覆盖当前 Web MVP 主链路，而不是被次要平台流程分散重点？ |
+| 必选 | 11 | 用例是否优先覆盖当前后台管理主链路，而不是被历史过渡流程分散重点？ |
 
 ## 当前项目适配说明
 
 - 测试策略与测试分层优先参考 [docs/conventions/testing.md](../conventions/testing.md)。
-- 若测试范围讨论中引用 Harness Engineering，应同步参考 [docs/architecture/harness-engineering-adaptation.md](../architecture/harness-engineering-adaptation.md)，确认测试重点仍围绕主链路收敛。
+- 若测试范围讨论中引用 Harness Engineering，应同步参考 [docs/architecture/harness-engineering-adaptation.md](../architecture/harness-engineering-adaptation.md)，确认测试重点仍围绕真实代码和主链路收敛。
 - 修复缺陷时，必须满足“先补回归测试，再修复实现”的项目规则。
 - 若测试用例涉及发布、回滚、环境变量、外部系统依赖或上线验证，应同步参考 [deploy/release/README.md](../../deploy/release/README.md) 与 [deploy/release/release-checklist.md](../../deploy/release/release-checklist.md)。

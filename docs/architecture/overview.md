@@ -2,159 +2,138 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 系统架构总览，说明目标基线、目标结构、当前现状与关键约束。
+description: HernessDemo 系统架构总览，说明 RuoYi-Vue-Plus 代码事实、模块结构、数据脚本与工程护栏。
 ---
 
 # 系统架构概览
 
 ## 项目定位
 
-ProjectPilot 是一个面向中小企业的在线项目管理 Web 产品，核心目标是支撑项目、任务、成员、权限、搜索和计费等协作场景。
+HernessDemo 当前是基于 `RuoYi-Vue-Plus 5.6.1` 的多租户后台管理系统重构工作区。当前建设重点不是从零实现项目管理 MVP，而是让现有 RuoYi-Vue-Plus 后台体系、文档、发布材料和 Harness Engineering 护栏对齐。
 
-当前阶段的建设主线是 Web 产品 MVP，而不是继续扩展交付平台能力。发布、回滚、环境与可观测性材料仍然保留，但在当前阶段属于支撑层。
+详细代码地图见 [docs/architecture/code-map.md](code-map.md)。
 
-## 目标基线
+## 技术基线
 
-当前项目目标基线由 [docs/architecture/target-technology-baseline.md](target-technology-baseline.md) 定义：
+当前后端基线由 [server/pom.xml](../../server/pom.xml) 确认：
 
-- JDK 17 LTS
-- Spring Boot 3.x
-- Maven 3.9+
-- MySQL 8.x，字符集 `utf8mb4`
-- MyBatis-Plus Boot 3 + Flyway
-- Vue 3 + TypeScript + Vite
-- Node 20 LTS+ + `pnpm`
+- JDK 17。
+- Spring Boot 3.5.x / Spring Framework 6。
+- Maven 多模块工程。
+- MyBatis-Plus Boot 3、dynamic-datasource、p6spy。
+- Sa-Token、JWT、JustAuth。
+- Redis、Redisson、Lock4j。
+- SpringDoc、Actuator、Spring Boot Admin。
 
-## 当前现状说明
+当前前端基线由 [web/package.json](../../web/package.json) 确认：
 
-当前仓库文档主线已经切到新基线，后端最小可运行基线也已完成验证，但整体工程仍处于迁移收敛阶段：
+- Vue 3。
+- TypeScript。
+- Vite。
+- Element Plus。
+- Pinia。
+- Vue Router。
+- VXE Table。
+- Vitest。
 
-- `server/` 已在 `JDK 17 + Spring Boot 3.3.x` 下完成 `compile`、`test` 和 `verify` 验证，但模块结构仍是过渡态。
-- `web/` 目标工程尚未完整建立。
-- 部署脚本与工作流仍带有历史命名。
-
-因此，当前架构工作分成两层：
-
-1. 文档与入口先统一目标方向。
-2. 后端继续从“版本升级完成”收敛到“结构目标完成”。
-3. 前端与交付链路再按迁移路线逐步补齐。
-
-迁移步骤见 [docs/plans/jdk17-springboot3-migration-roadmap.md](../plans/jdk17-springboot3-migration-roadmap.md)。
-
-## 推荐目录结构
-
-```text
-.
-├── AGENTS.md
-├── README.md
-├── docs/
-├── server/
-├── web/
-└── deploy/
-```
-
-- `docs/`：架构、规范、设计、计划、参考与评审文档。
-- `server/`：后端服务与后端迁移主目录。
-- `web/`：Web 前端应用与共享包。
-- `deploy/`：发布、回滚、环境变量、可观测性等支撑材料。
-
-## 目标后端结构
-
-结合 CallCenter 的工程结构经验，ProjectPilot 的目标后端形态是轻量化模块化单体：
+## 后端结构
 
 ```text
 server/
-├── bootstrap/
-├── shared/
-├── modules/
-│   ├── auth/
-│   ├── organization/
-│   ├── project/
-│   ├── task/
-│   └── billing/
-├── integration/
+├── ruoyi-admin/
+├── ruoyi-common/
+├── ruoyi-modules/
+├── ruoyi-extend/
 └── script/
 ```
 
-- `bootstrap/`：Spring Boot 启动、装配、统一配置入口。
-- `shared/`：稳定的共享基础能力与公共契约。
-- `modules/`：按业务边界组织的模块。
-- `integration/`：第三方系统、对象存储、消息、支付等外围集成。
-- `script/`：迁移、数据处理和运维辅助脚本。
+职责说明：
 
-## 目标前端结构
+- `ruoyi-admin` 是 Web 服务启动与打包入口，承载认证控制器、应用配置和最终 Jar。
+- `ruoyi-common` 是公共能力层，包含 core、web、mybatis、redis、satoken、tenant、security、oss、log、excel、sse、websocket 等基础能力。
+- `ruoyi-modules` 是主要业务与功能模块层，包含 system、generator、job、workflow、demo。
+- `ruoyi-extend` 是独立扩展层，包含 monitor admin 和 SnailJob server。
+- `script` 保存 SQL、Docker Compose、启动脚本和工作流示例数据。
 
-ProjectPilot 的 Web 工程吸收 CallCenter 的前端工程化思路，但按当前规模做轻量化启动：
+## 前端结构
 
 ```text
 web/
-├── apps/
-│   └── projectpilot-web/
-├── packages/
-│   ├── shared-ui/
-│   ├── shared-api/
-│   └── config/
-└── tooling/
+├── src/api/
+├── src/views/
+├── src/router/
+├── src/store/
+├── src/layout/
+├── src/components/
+├── src/utils/
+└── vite/
 ```
 
-- `apps/`：具体前端应用入口。
-- `packages/shared-ui/`：共享 UI 组件与设计约束。
-- `packages/shared-api/`：接口客户端、类型定义和请求适配。
-- `packages/config/`：ESLint、TSConfig、构建共享配置。
-- `tooling/`：脚本、生成器和本地开发辅助能力。
+职责说明：
 
-## 后端模块内部结构
+- `src/api` 按功能域维护前端请求封装。
+- `src/views` 已包含 system、monitor、tool/gen、workflow、demo 等页面。
+- `src/router` 和 `src/store` 分别管理路由与 Pinia 状态。
+- `vite` 与根配置文件维护 Vite 插件和构建配置。
 
-单个模块建议按以下方式组织：
+## 运行时链路
 
-```text
-modules/project/
-├── domain/
-├── application/
-└── adapter/
-    ├── in/web/
-    └── out/persistence/
+```mermaid
+flowchart TD
+    Browser["浏览器 / web"]
+    Api["web/src/api"]
+    Admin["ruoyi-admin"]
+    CommonWeb["ruoyi-common-web"]
+    Satoken["ruoyi-common-satoken"]
+    Tenant["ruoyi-common-tenant"]
+    Modules["ruoyi-modules"]
+    Mybatis["ruoyi-common-mybatis"]
+    DB["数据库 / server/script/sql"]
+    Redis["Redis / Redisson"]
+
+    Browser --> Api
+    Api --> Admin
+    Admin --> CommonWeb
+    CommonWeb --> Satoken
+    CommonWeb --> Tenant
+    CommonWeb --> Modules
+    Modules --> Mybatis
+    Mybatis --> DB
+    Modules --> Redis
+    Satoken --> Redis
 ```
-
-- `domain/`：领域模型、值对象、核心规则。
-- `application/`：业务用例、事务边界、跨对象编排。
-- `adapter/in/web/`：HTTP 输入适配。
-- `adapter/out/persistence/`：数据库访问、Mapper 与持久化适配。
-
-更细的依赖规则见 [docs/architecture/boundaries.md](boundaries.md)。
 
 ## 数据与迁移
 
-数据库主线切换到 MySQL 8.x，所有结构变更必须通过 Flyway migration 管理。业务代码、实体和 SQL 片段不能替代数据库迁移脚本。
+当前仓库以 SQL 脚本维护数据库事实：
 
-迁移脚本应满足：
+- 初始化脚本位于 [server/script/sql](../../server/script/sql)。
+- 版本升级脚本位于 [server/script/sql/update](../../server/script/sql/update)。
+- Oracle、PostgreSQL、SQL Server 兼容脚本也在 [server/script/sql](../../server/script/sql) 下维护。
 
-- 可以在空库上顺序执行。
-- 可以在测试环境重复验证。
-- 优先使用项目主线允许的 MySQL 8 语法，但需评估索引、兼容性和回滚风险。
-- 涉及兼容性风险时，在文档中说明回滚方案或补偿方案。
+当前没有 Flyway migration 体系。数据库结构变更必须同步更新 SQL 脚本和相关文档；若引入 Flyway，必须作为单独架构变更完成验证。
 
-## 外部交互
+## 发布与观测
 
-外部系统调用必须通过 adapter 或 `ApiClient` 抽象接入，禁止在业务代码中裸用 HTTP 客户端或把第三方 SDK 直接扩散到核心模块。
-
-认证、日志、审计、telemetry、cache 等横切能力必须通过 Spring 注入，不允许手动 `new` 实例化。
+- 发布支撑材料位于 [deploy/release](../../deploy/release)。
+- 本地观测材料位于 [deploy/observability](../../deploy/observability)。
+- 当前 `.github/workflows` 中仍有 `services/callcenter-server` 历史引用，不能直接视为可用 CI/CD 事实。
 
 ## 质量门禁
 
-新增业务代码必须满足：
+新增或修改代码时必须遵守：
 
+- 新代码使用 `jakarta.*`，禁止新增 `javax.*`。
 - 使用构造器注入，禁止字段级 `@Autowired`。
-- 新代码统一使用 `jakarta.*` 命名空间。
-- 单个 `.java` 文件不超过 300 行。
-- 单个方法不超过 50 行。
-- 使用 SLF4J `Logger`，禁止 `System.out.println` 和 `e.printStackTrace()`。
-- 有对应测试；后端默认 JUnit 5，前端默认 Vitest。
+- 禁止新增 `System.out.println` 和 `e.printStackTrace()`。
+- 通过已有 common 能力接入鉴权、租户、日志、缓存、SSE、WebSocket、对象存储等横切能力。
+- 业务变更必须补测试；后端默认 JUnit 5，前端默认 Vitest。
+- API、响应码、数据库脚本、发布入口变化必须同步更新文档。
 
 ## 相关入口
 
+- [docs/architecture/code-map.md](code-map.md)
 - [docs/architecture/target-technology-baseline.md](target-technology-baseline.md)
-- [docs/architecture/callcenter-reference-adaptation.md](callcenter-reference-adaptation.md)
+- [docs/architecture/boundaries.md](boundaries.md)
+- [docs/architecture/data-flow.md](data-flow.md)
 - [docs/architecture/harness-engineering-adaptation.md](harness-engineering-adaptation.md)
-- [docs/design/web-mvp-roadmap.md](../design/web-mvp-roadmap.md)
-- [docs/plans/jdk17-springboot3-migration-roadmap.md](../plans/jdk17-springboot3-migration-roadmap.md)

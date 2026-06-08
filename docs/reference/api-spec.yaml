@@ -1,402 +1,132 @@
----
-last_updated: 2026-06-08
-status: active
-owner: "@PengKang"
-description: ProjectPilot API 基线文档，统一维护对外 HTTP 接口契约与版本信息。
----
-
 openapi: 3.0.3
 info:
-  title: ProjectPilot API
+  title: HernessDemo Admin API 摘要
   version: 0.1.0
   description: |
-    ProjectPilot 在线项目管理平台 API 基线文档。
-    当前文件定义第一版接口约定，实际实现时必须保持同步更新。
-    当前 API 文档以 Web MVP 主线为优先，超出当前阶段的接口仅作为边界预留，不代表已经进入当前迭代实现范围。
+    本文件是当前 RuoYi-Vue-Plus 后台管理系统的仓库级 API 摘要，不替代运行时 SpringDoc 生成的完整接口文档。
+    摘要只列代表性入口，完整接口应以后端 Controller 和 SpringDoc 输出为准。
 servers:
-  - url: /api/v1
-    description: 默认 API 前缀
+  - url: /
+    description: 当前后端 context-path
 tags:
   - name: Auth
-    description: 认证与会话
-  - name: Projects
-    description: 项目管理
-  - name: Search
-    description: 搜索，属于 Web MVP 后的增强能力
-  - name: Billing
-    description: 计费，当前阶段仅保留边界，不属于第一批 MVP 实现
+    description: 认证、会话、注册、租户与第三方绑定
+  - name: System
+    description: 用户、菜单、角色、租户等系统管理
+  - name: Generator
+    description: 代码生成
+  - name: Workflow
+    description: 工作流
 paths:
   /auth/login:
     post:
-      tags:
-        - Auth
+      tags: [Auth]
       summary: 用户登录
-      operationId: login
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
+      description: 校验 clientId、grantType、租户状态后进入对应认证策略。
       responses:
-        '200':
-          description: 登录成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+        "200":
+          description: 统一 R<LoginVo> 响应
   /auth/logout:
     post:
-      tags:
-        - Auth
+      tags: [Auth]
       summary: 用户登出
-      operationId: logout
       responses:
-        '204':
-          description: 登出成功
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-  /projects:
-    get:
-      tags:
-        - Projects
-      summary: 查询项目列表
-      operationId: listProjects
-      parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PageSize'
-      responses:
-        '200':
-          description: 项目列表
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectPageResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+        "200":
+          description: 统一 R<Void> 响应
+  /auth/register:
     post:
-      tags:
-        - Projects
-      summary: 创建项目
-      operationId: createProject
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateProjectRequest'
+      tags: [Auth]
+      summary: 用户注册
       responses:
-        '201':
-          description: 创建成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '409':
-          $ref: '#/components/responses/Conflict'
-  /projects/{projectId}:
+        "200":
+          description: 统一 R<Void> 响应
+  /auth/tenant/list:
     get:
-      tags:
-        - Projects
-      summary: 查询项目详情
-      operationId: getProject
-      parameters:
-        - $ref: '#/components/parameters/ProjectId'
+      tags: [Auth]
+      summary: 查询登录页租户列表
       responses:
-        '200':
-          description: 项目详情
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /search:
+        "200":
+          description: 统一 R<LoginTenantVo> 响应
+  /auth/code:
     get:
-      tags:
-        - Search
-      summary: 搜索项目和任务
-      description: 当前作为增强能力预留，具体实现优先级低于登录、项目、任务主链路。
-      operationId: search
+      tags: [Auth]
+      summary: 获取图形验证码
+      responses:
+        "200":
+          description: 验证码响应
+  /system/user/list:
+    get:
+      tags: [System]
+      summary: 查询用户列表
+      responses:
+        "200":
+          description: 表格分页响应
+  /system/user/getInfo:
+    get:
+      tags: [System]
+      summary: 获取当前用户信息
+      responses:
+        "200":
+          description: 当前用户、角色与权限信息
+  /system/menu/getRouters:
+    get:
+      tags: [System]
+      summary: 获取动态路由
+      responses:
+        "200":
+          description: 路由树响应
+  /tool/gen/list:
+    get:
+      tags: [Generator]
+      summary: 查询代码生成表列表
+      responses:
+        "200":
+          description: 表格分页响应
+  /tool/gen/preview/{tableId}:
+    get:
+      tags: [Generator]
+      summary: 预览代码生成结果
       parameters:
-        - name: keyword
-          in: query
-          required: false
+        - name: tableId
+          in: path
+          required: true
           schema:
-            type: string
-            maxLength: 100
-        - name: type
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - project
-              - task
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PageSize'
+            type: integer
+            format: int64
       responses:
-        '200':
-          description: 搜索结果
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SearchResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-  /billing/invoices:
+        "200":
+          description: 代码预览响应
+  /workflow/definition/list:
     get:
-      tags:
-        - Billing
-      summary: 查询账单列表
-      description: 当前作为商业化边界预留，不表示已经进入第一阶段 Web MVP 实现。
-      operationId: listInvoices
-      parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PageSize'
+      tags: [Workflow]
+      summary: 查询流程定义列表
       responses:
-        '200':
-          description: 账单列表
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InvoicePageResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+        "200":
+          description: 表格分页响应
+  /workflow/definition/{id}:
+    get:
+      tags: [Workflow]
+      summary: 查询流程定义详情
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: 流程定义详情响应
 components:
-  parameters:
-    Page:
-      name: page
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        default: 1
-    PageSize:
-      name: pageSize
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 20
-    ProjectId:
-      name: projectId
-      in: path
-      required: true
-      schema:
-        type: string
-  responses:
-    BadRequest:
-      description: 请求参数错误
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    Unauthorized:
-      description: 未认证或认证已失效
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    Forbidden:
-      description: 权限不足
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    NotFound:
-      description: 资源不存在
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    Conflict:
-      description: 资源冲突
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
   schemas:
-    LoginRequest:
+    R:
       type: object
-      required:
-        - username
-        - password
-      properties:
-        username:
-          type: string
-          maxLength: 100
-        password:
-          type: string
-          format: password
-          maxLength: 100
-    LoginResponse:
-      type: object
-      required:
-        - token
-        - user
-      properties:
-        token:
-          type: string
-        user:
-          $ref: '#/components/schemas/UserSummary'
-    UserSummary:
-      type: object
-      required:
-        - id
-        - displayName
-      properties:
-        id:
-          type: string
-        displayName:
-          type: string
-    CreateProjectRequest:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 100
-        description:
-          type: string
-          maxLength: 1000
-    ProjectResponse:
-      type: object
-      required:
-        - id
-        - name
-        - createdAt
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-    ProjectPageResponse:
-      type: object
-      required:
-        - items
-        - page
-        - pageSize
-        - total
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProjectResponse'
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-    SearchResponse:
-      type: object
-      required:
-        - items
-        - page
-        - pageSize
-        - total
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SearchItem'
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-    SearchItem:
-      type: object
-      required:
-        - id
-        - type
-        - title
-      properties:
-        id:
-          type: string
-        type:
-          type: string
-          enum:
-            - project
-            - task
-        title:
-          type: string
-        summary:
-          type: string
-    InvoicePageResponse:
-      type: object
-      required:
-        - items
-        - page
-        - pageSize
-        - total
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/InvoiceResponse'
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-    InvoiceResponse:
-      type: object
-      required:
-        - id
-        - status
-        - amount
-      properties:
-        id:
-          type: string
-        status:
-          type: string
-          enum:
-            - draft
-            - open
-            - paid
-            - void
-        amount:
-          type: number
-          format: double
-    ErrorResponse:
-      type: object
-      required:
-        - code
-        - message
       properties:
         code:
+          type: integer
+          description: 响应码，成功通常为 200
+        msg:
           type: string
-        message:
-          type: string
-        traceId:
-          type: string
+          description: 响应消息
+        data:
+          description: 响应数据

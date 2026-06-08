@@ -2,14 +2,14 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 文档链接规范，统一约束相对链接、绝对路径和导航文档中的链接写法。
+description: HernessDemo 文档链接规范，统一约束相对链接、绝对路径和导航文档中的链接写法。
 ---
 
 # 文档链接规范
 
 ## 目标
 
-本文档用于统一 ProjectPilot 仓库中文档路径的写法，提升人类读者与 AI 协作者的可导航性、可理解性和维护体验。
+本文档用于统一 HernessDemo 仓库中文档路径的写法，提升人类读者与 AI 协作者的可导航性、可理解性和维护体验。
 
 ## 基本原则
 
@@ -40,12 +40,12 @@ description: ProjectPilot 文档链接规范，统一约束相对链接、绝对
 
 推荐：
 
-- `[docs/design/web-mvp-roadmap.md](../design/web-mvp-roadmap.md)`
+- `[docs/design/backend-admin-roadmap.md](../design/backend-admin-roadmap.md)`
 - `[deploy/release/README.md](../../deploy/release/README.md)`
 
 不推荐：
 
-- `` `docs/design/web-mvp-roadmap.md` ``
+- `` `docs/design/backend-admin-roadmap.md` ``
 - `` `deploy/release/README.md` ``
 
 ### 关键 workflow

@@ -2,47 +2,38 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 参考文档目录入口，汇总 API 契约、错误码等事实性资料。
+description: HernessDemo 参考文档目录入口，汇总当前 API 摘要、响应码、错误消息与共享事实资料。
 ---
 
 # 参考文档总览
 
 ## 目标
 
-本目录沉淀 ProjectPilot 的对外协议和共享参考资料，帮助开发、测试和评审快速找到接口契约和错误码基线。
-
-当前阶段，本目录遵循“Web MVP 主线优先、目标基线先对齐”的维护原则。也就是说，接口和错误码既要服务当前实现，也要避免继续沿用旧基线思维。
+本目录沉淀 HernessDemo 的接口、响应码、错误消息和共享事实资料。当前系统的完整接口文档主要由 SpringDoc 从后端代码生成；本目录维护仓库级摘要和人工协作时必须核对的事实。
 
 ## 文档索引
 
 | 主题 | 文档 |
 | --- | --- |
-| API 规范 | [docs/reference/api-spec.yaml](api-spec.yaml) |
-| 错误码 | [docs/reference/error-codes.md](error-codes.md) |
+| API 摘要 | [docs/reference/api-spec.yaml](api-spec.yaml) |
+| 响应码与错误消息 | [docs/reference/error-codes.md](error-codes.md) |
 
 ## 使用建议
 
-- 如果要先判断接口是否属于当前实现范围，先阅读 [docs/design/web-mvp-roadmap.md](../design/web-mvp-roadmap.md)。
-- 如果要判断某个 API 或错误码是否与新基线冲突，先阅读 [docs/architecture/target-technology-baseline.md](../architecture/target-technology-baseline.md)。
-- 如果要判断某个 API 或错误码是否存在范围偏航，先阅读 [docs/architecture/harness-engineering-adaptation.md](../architecture/harness-engineering-adaptation.md)。
-- 开发接口前，先阅读 API 规范和错误码文档。
-- 需求、设计、代码和测试评审若涉及接口协议，优先把本目录作为统一依据。
-- 涉及错误响应、状态码或接口字段变化时，必须同步更新本目录。
+- 判断接口事实前，先看 [docs/architecture/code-map.md](../architecture/code-map.md)。
+- 修改接口前，核对 Controller、前端 [web/src/api](../../web/src/api) 和 SpringDoc 生成结果。
+- 修改响应码、异常处理或 i18n 消息时，同步更新 [docs/reference/error-codes.md](error-codes.md)。
+- 修改 SQL 相关行为时，同步检查 [server/script/sql](../../server/script/sql)。
 
 ## 推荐阅读顺序
 
-1. [docs/design/web-mvp-roadmap.md](../design/web-mvp-roadmap.md)
-2. [docs/architecture/target-technology-baseline.md](../architecture/target-technology-baseline.md)
+1. [docs/architecture/code-map.md](../architecture/code-map.md)
+2. [docs/architecture/data-flow.md](../architecture/data-flow.md)
 3. [docs/reference/api-spec.yaml](api-spec.yaml)
 4. [docs/reference/error-codes.md](error-codes.md)
 
 ## 维护规则
 
-- API 变更必须同步更新 [docs/reference/api-spec.yaml](api-spec.yaml)。
-- 错误码变更必须同步更新 [docs/reference/error-codes.md](error-codes.md)。
-
-## 与开发评审的关系
-
-- 开发接口前，先读 [docs/design/web-mvp-roadmap.md](../design/web-mvp-roadmap.md) 判断是否属于当前主线。
-- 做后端设计评审时，结合 [docs/reviews/backend-design-review-checklist.md](../reviews/backend-design-review-checklist.md) 使用本目录。
-- 做后端代码自检时，若改动涉及响应结构、状态码或异常映射，结合 [docs/reviews/backend-code-review-checklist.md](../reviews/backend-code-review-checklist.md) 一起检查。
+- API 摘要不能写入不存在的业务接口。
+- 若接口由 SpringDoc 动态生成且不在摘要中列全，应在文档中说明范围。
+- 响应码文档必须对齐 `R`、`HttpStatus`、`GlobalExceptionHandler` 和 i18n 消息。

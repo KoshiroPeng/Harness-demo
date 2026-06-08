@@ -2,28 +2,26 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 环境变量模板，统一维护部署、运行和发布所需变量与密钥清单。
+description: HernessDemo 环境变量模板，统一维护部署、运行、发布验证和远端 SSH 所需变量与密钥。
 ---
 
 # 环境变量与密钥模板
 
-本文件用于沉淀 ProjectPilot 各环境的变量和密钥清单，便于在 GitHub Environments、部署平台或密钥管理系统中统一维护。
-
-本文档属于发布支撑材料，目标是减少环境准备的不确定性，而不是扩张新的平台范围。
+本文档沉淀 HernessDemo 各环境的变量和密钥清单，便于在 GitHub Environments、部署平台或密钥管理系统中统一维护。
 
 ## 公共变量
 
 | 名称 | 类型 | 是否敏感 | 示例 | 说明 |
 | --- | --- | --- | --- | --- |
-| `APP_PROFILE` | variable | 否 | `test` | Spring profile 名称 |
+| `APP_PROFILE` | variable | 否 | `prod` | Spring profile 名称 |
 | `VERIFY_BASE_URL` | variable | 否 | `https://staging.example.com` | 发布后验证访问地址 |
 | `OBSERVATION_MINUTES` | variable | 否 | `15` | 发布后观察窗口分钟数 |
 | `RELEASE_OWNER` | variable | 否 | `backend-team` | 发布负责人 |
 | `ONCALL_CONTACT` | variable | 否 | `oncall@example.com` | 值班联系人 |
-| `APP_DEPLOY_DIR` | variable | 否 | `/opt/projectpilot` | 远端部署目录 |
+| `APP_DEPLOY_DIR` | variable | 否 | `/opt/herness-demo` | 远端部署目录 |
 | `APP_DEPLOY_PORT` | variable | 否 | `22` | SSH 端口 |
 | `APP_DEPLOY_STRATEGY` | variable | 否 | `systemd` | 远端启动策略，支持 `systemd` 或 `nohup` |
-| `APP_SERVICE_NAME` | variable | 否 | `projectpilot` | systemd 服务名 |
+| `APP_SERVICE_NAME` | variable | 否 | `herness-demo` | systemd 服务名，真实发布前可统一为目标服务名 |
 
 ## 后端部署变量
 
@@ -32,7 +30,6 @@ description: ProjectPilot 环境变量模板，统一维护部署、运行和发
 | `SERVER_PORT` | variable | 否 | `8080` | 服务端口 |
 | `JAVA_OPTS` | variable | 否 | `-Xms512m -Xmx1024m` | JVM 运行参数 |
 | `LOG_LEVEL_ROOT` | variable | 否 | `INFO` | 根日志级别 |
-| `APP_PROFILE` | variable | 否 | `staging` | 目标环境使用的 Spring profile |
 | `JDK_VERSION` | variable | 否 | `17` | 目标运行时 JDK 主版本 |
 
 ## 后端密钥
@@ -43,34 +40,16 @@ description: ProjectPilot 环境变量模板，统一维护部署、运行和发
 | `DB_USERNAME` | secret | 是 | `app_user` | 数据库账号 |
 | `DB_PASSWORD` | secret | 是 | `***` | 数据库密码 |
 | `JWT_SIGNING_KEY` | secret | 是 | `***` | JWT 签名密钥 |
-| `API_CLIENT_TOKEN` | secret | 是 | `***` | 外部 API 调用令牌 |
 | `APP_DEPLOY_HOST` | secret | 是 | `server.example.com` | 远端部署主机 |
 | `APP_DEPLOY_USER` | secret | 是 | `deploy` | 远端部署账号 |
 | `APP_DEPLOY_KEY` | secret | 是 | `***` | SSH 私钥内容 |
-
-## 环境填写建议
-
-### test
-
-- 优先补齐验证链路所需最小变量。
-- 不使用生产凭据。
-
-### staging
-
-- 尽量与生产配置结构一致。
-- 验证回滚和发布检查清单。
-
-### prod
-
-- 所有敏感信息必须来自受控 secrets。
-- 严禁使用临时人工口头分发的凭据。
-- 若环境仍保留历史 Java 8 / Boot 2.7 运行时，应先记录为迁移残留，不要继续当作新环境默认值。
 
 ## 维护规则
 
 - 新增配置项时，同步补充到本模板。
 - 删除配置项时，同步清理对应环境中的遗留变量和密钥。
-- 如果某项变量暂时不直接服务当前 Web MVP 发布链路，应谨慎新增，避免配置面持续膨胀。
+- 真实发布前必须确认变量名称与 workflow、脚本、systemd 模板一致。
+- 不要把密钥写入仓库、文档示例或提交信息。
 
 ## 配套脚本
 

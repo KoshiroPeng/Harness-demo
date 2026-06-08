@@ -2,80 +2,65 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 错误码基线文档，统一维护错误响应编号与语义。
+description: HernessDemo 响应码与错误消息文档，统一说明 R、HttpStatus、GlobalExceptionHandler 和 i18n 消息语义。
 ---
 
-# 错误码
+# 响应码与错误消息
 
-错误码是 API 契约的一部分。新增、删除或变更错误码时，必须同步更新本文档和相关测试。
+## 当前模型
 
-当前错误码基线按“当前主线优先、后续能力预留”的方式维护：
+当前系统使用 `R<T>` 作为统一响应结构：
 
-- Auth、Project、Task 相关错误码优先服务当前 Web MVP 主线。
-- Search、Billing 相关错误码可以先保留边界，但不代表对应能力已经进入当前迭代。
-
-## 命名规则
-
-错误码使用大写英文和下划线：
-
-```text
-MODULE_REASON
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "data": {}
+}
 ```
 
-示例：
+事实入口：
 
-- `PROJECT_NOT_FOUND`
-- `AUTH_TOKEN_EXPIRED`
-- `BILLING_PLAN_NOT_FOUND`
+- [R.java](../../server/ruoyi-common/ruoyi-common-core/src/main/java/org/dromara/common/core/domain/R.java)
+- [HttpStatus.java](../../server/ruoyi-common/ruoyi-common-core/src/main/java/org/dromara/common/core/constant/HttpStatus.java)
+- [GlobalExceptionHandler.java](../../server/ruoyi-common/ruoyi-common-web/src/main/java/org/dromara/common/web/handler/GlobalExceptionHandler.java)
+- [server/ruoyi-admin/src/main/resources/i18n](../../server/ruoyi-admin/src/main/resources/i18n)
 
-## 通用错误码
+## 通用 code
 
-| 错误码 | HTTP 状态 | 说明 |
+| code | 语义 | 说明 |
 | --- | --- | --- |
-| `COMMON_BAD_REQUEST` | 400 | 请求参数错误 |
-| `COMMON_VALIDATION_FAILED` | 400 | 参数校验失败 |
-| `COMMON_NOT_FOUND` | 404 | 通用资源不存在 |
-| `COMMON_CONFLICT` | 409 | 通用资源冲突 |
-| `COMMON_INTERNAL_ERROR` | 500 | 未预期系统错误 |
+| `200` | 成功 | `R.ok` 默认值 |
+| `400` | 请求错误 | 参数格式、JSON 解析、请求体读取等错误 |
+| `401` | 未授权 | 认证失败或登录态不可用 |
+| `403` | 权限不足 | Sa-Token 权限或角色校验失败 |
+| `404` | 不存在 | 请求地址或资源不存在 |
+| `405` | 方法不支持 | HTTP 方法不支持 |
+| `409` | 冲突 | 数据库唯一约束、重复记录等 |
+| `500` | 失败或系统错误 | `R.fail` 默认值和系统异常 |
+| `601` | 警告 | `R.warn` |
 
-## 认证与授权
+## 认证与租户消息键
 
-| 错误码 | HTTP 状态 | 说明 |
-| --- | --- | --- |
-| `AUTH_REQUIRED` | 401 | 需要登录 |
-| `AUTH_TOKEN_EXPIRED` | 401 | 登录状态已过期 |
-| `AUTH_TOKEN_INVALID` | 401 | 登录凭证无效 |
-| `AUTH_FORBIDDEN` | 403 | 权限不足 |
-
-## 项目与任务
-
-| 错误码 | HTTP 状态 | 说明 |
-| --- | --- | --- |
-| `PROJECT_NOT_FOUND` | 404 | 项目不存在 |
-| `PROJECT_NAME_DUPLICATED` | 409 | 项目名称重复 |
-| `PROJECT_ACCESS_DENIED` | 403 | 无权访问项目 |
-| `TASK_NOT_FOUND` | 404 | 任务不存在 |
-| `TASK_STATUS_INVALID` | 422 | 任务状态不合法 |
-
-## 搜索
-
-| 错误码 | HTTP 状态 | 说明 |
-| --- | --- | --- |
-| `SEARCH_QUERY_INVALID` | 400 | 搜索条件不合法 |
-| `SEARCH_PAGE_SIZE_EXCEEDED` | 400 | 分页大小超过限制 |
-
-## 计费
-
-| 错误码 | HTTP 状态 | 说明 |
-| --- | --- | --- |
-| `BILLING_PLAN_NOT_FOUND` | 404 | 套餐不存在 |
-| `BILLING_SUBSCRIPTION_INACTIVE` | 422 | 订阅未激活 |
-| `BILLING_INVOICE_NOT_FOUND` | 404 | 账单不存在 |
-| `BILLING_PROVIDER_UNAVAILABLE` | 503 | 外部计费渠道不可用 |
+| 消息键 | 默认含义 |
+| --- | --- |
+| `user.jcaptcha.error` | 验证码错误 |
+| `user.jcaptcha.expire` | 验证码已失效 |
+| `user.password.not.match` | 用户不存在或密码错误 |
+| `user.password.retry.limit.count` | 密码错误次数提示 |
+| `user.password.retry.limit.exceed` | 密码错误超限并锁定 |
+| `user.login.success` | 登录成功 |
+| `user.logout.success` | 退出成功 |
+| `user.register.success` | 注册成功 |
+| `auth.grant.type.error` | 认证授权类型错误 |
+| `auth.grant.type.blocked` | 认证授权类型已禁用 |
+| `tenant.not.exists` | 租户不存在 |
+| `tenant.blocked` | 租户已禁用 |
+| `tenant.expired` | 租户已过期 |
 
 ## 维护要求
 
-- 错误码一经对外发布，不应随意改名。
-- 废弃错误码时先标记废弃，再在下一大版本删除。
-- 错误响应不得暴露堆栈、SQL 或敏感配置。
-- 若某类错误码长期没有真实主链路使用场景，应谨慎扩张，避免文档先于业务范围膨胀。
+- 新增或修改错误消息时，同步默认、中文和英文 i18n 文件。
+- 新增异常映射时，同步检查 [docs/conventions/error-handling.md](../conventions/error-handling.md)。
+- 不要把旧 ProjectPilot 的 `PROJECT_NOT_FOUND`、`TASK_STATUS_INVALID`、`BILLING_*` 等错误码当成当前事实。
+- 对外响应不得暴露堆栈、SQL、密钥或内部配置。

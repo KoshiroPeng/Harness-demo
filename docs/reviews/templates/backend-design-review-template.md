@@ -2,7 +2,7 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 后端设计评审输出模板，用于统一记录数据库、接口和逻辑设计评审结果。
+description: HernessDemo 后端设计评审输出模板，用于统一记录数据库、接口和逻辑设计评审结果。
 ---
 
 # 后台设计评审输出模板
@@ -36,7 +36,7 @@ description: ProjectPilot 后端设计评审输出模板，用于统一记录数
 - 数据库设计是否合理：
 - 接口设计是否完整：
 - 历史数据处理是否明确：
-- 是否符合 JDK 17 / Spring Boot 3 / MySQL 8 目标主线：
+- 是否符合 JDK 17 / Spring Boot 3 / 当前 SQL 脚本体系：
 - 外部调用与异常处理是否明确：
 - 缓存、定时任务、同步任务设计是否明确：
 - 是否涉及交付、配置、发布或回滚影响：

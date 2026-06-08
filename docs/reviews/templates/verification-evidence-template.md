@@ -2,7 +2,7 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 验证证据输出模板，用于统一记录验证方式、结果与剩余风险。
+description: HernessDemo 验证证据输出模板，用于统一记录验证方式、结果与剩余风险。
 ---
 
 # 验证证据输出模板
@@ -25,7 +25,7 @@ description: ProjectPilot 验证证据输出模板，用于统一记录验证方
 - [docs/reviews/backend-code-review-checklist.md](../backend-code-review-checklist.md)
 - [docs/reviews/frontend-code-review-checklist.md](../frontend-code-review-checklist.md)
 - [docs/architecture/target-technology-baseline.md](../../architecture/target-technology-baseline.md)
-- [docs/plans/jdk17-springboot3-migration-roadmap.md](../../plans/jdk17-springboot3-migration-roadmap.md)
+- [docs/architecture/code-map.md](../../architecture/code-map.md)
 - [deploy/release/release-checklist.md](../../../deploy/release/release-checklist.md)
 
 ```md
@@ -52,9 +52,9 @@ description: ProjectPilot 验证证据输出模板，用于统一记录验证方
 
 ## 基线对齐结果
 
-- 是否符合当前目标技术基线：
+- 是否符合当前技术基线和代码地图：
 - 是否仍存在历史残留：
-- 若存在残留，是否已记录到迁移路线或 backlog：
+- 若存在残留，是否已记录到 backlog：
 
 ## 关键命令或操作记录
 
@@ -81,6 +81,6 @@ description: ProjectPilot 验证证据输出模板，用于统一记录验证方
 ## 使用提醒
 
 - 如果某项验证没有执行，不要省略，直接写明“未执行”和原因。
-- 如果本次改动涉及 API、错误码、迁移、发布或观测方案，结果摘要中应明确写出是否已同步检查。
-- 如果本次改动属于 JDK 17 / Spring Boot 3 迁移、前端结构落地或模块边界调整，建议补写“基线对齐结果”。
+- 如果本次改动涉及 API、响应码、SQL、发布或观测方案，结果摘要中应明确写出是否已同步检查。
+- 如果本次改动属于 workflow、发布路径、前端结构或模块边界调整，建议补写“基线对齐结果”。
 - 如果仍有已知风险，不要把它藏在备注里，应单独写入“未覆盖风险”。

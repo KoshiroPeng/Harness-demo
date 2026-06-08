@@ -2,7 +2,7 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 前端设计评审清单，用于检查交互设计、接口调用与前端业务逻辑设计。
+description: HernessDemo 前端设计评审清单，用于检查交互设计、接口调用、路由权限与前端业务逻辑设计。
 ---
 
 # 前端设计评审清单
@@ -35,16 +35,16 @@ description: ProjectPilot 前端设计评审清单，用于检查交互设计、
 | 必选 | 12 | 若存在前端缓存，是否有保证数据一致性的设计？ |
 | 必选 | 13 | 若使用外部接口，是否有参数保障设计和异常提示设计？ |
 | 必选 | 14 | 是否复用已存在方法，复用是否影响原有功能？ |
-| 必选 | 15 | 设计是否服务当前 Web MVP 页面闭环，而不是超前扩张前端平台能力？ |
+| 必选 | 15 | 设计是否服务当前后台管理功能域，而不是超前扩张前端平台能力？ |
 
 ## 当前项目适配说明
 
-- 当前仓库已经明确了 `web/` 主线与目标结构，本清单不再只是预留能力，而是后续前端落地时的默认设计检查入口。
-- 前端设计应优先围绕 `apps / packages / tooling` 的目标结构与 Web MVP 页面闭环收敛。
+- 当前仓库已经存在 `web/` Vue 3 应用，本清单按 [web/src/api](../../web/src/api)、[web/src/views](../../web/src/views)、[web/src/router](../../web/src/router)、[web/src/store](../../web/src/store) 的真实结构执行。
+- 前端设计应优先围绕 system、monitor、tool/gen、workflow、demo 等现有功能域收敛。
 - 若设计讨论中引用 Harness Engineering，应优先确认它是在帮助前端主链路交付，而不是扩张通用平台层。
 
 ## 配套入口
 
 - [docs/reviews/templates/frontend-design-review-template.md](templates/frontend-design-review-template.md)
-- [docs/design/web-mvp-roadmap.md](../design/web-mvp-roadmap.md)
+- [docs/design/backend-admin-roadmap.md](../design/backend-admin-roadmap.md)
 - [docs/conventions/task-startup-checklist.md](../conventions/task-startup-checklist.md)

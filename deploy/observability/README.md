@@ -2,14 +2,14 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 本地可观测性目录入口，汇总指标、日志与观测支撑材料。
+description: HernessDemo 本地可观测性目录入口，汇总指标、日志与观测支撑材料。
 ---
 
 # 本地可观测性
 
 本目录提供轻量级本地可观测性堆栈。
 
-这些材料的定位是开发、迁移和发布支撑层，用于帮助定位问题、验证系统状态，不应替代当前 Web MVP 主线建设。
+这些材料的定位是开发、重构和发布支撑层，用于帮助定位问题、验证系统状态，不应替代当前后台管理系统主线建设。
 
 - Prometheus: `http://localhost:9090`
 - Grafana: `http://localhost:3001`

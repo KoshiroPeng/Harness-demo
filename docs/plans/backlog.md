@@ -2,68 +2,51 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 后续待办列表，覆盖 Web 主线、基线迁移、业务增强与工程硬化事项。
+description: HernessDemo 后续待办列表，覆盖文档代码对齐、workflow 修正、SQL 治理、发布支撑与 Harness 自动化。
 ---
 
 # Backlog
 
-## 使用说明
+## P0：历史残留清理
 
-- 当某个 backlog 项准备进入开发时，先回看 [docs/design/web-mvp-roadmap.md](../design/web-mvp-roadmap.md) 判断它是否仍符合当前主线。
-- 如果任务涉及架构、规范、评审或发布影响，回到 [docs/README.md](../README.md) 按场景补齐联读材料。
-- 如果某项建设更像平台扩张而不是当前产品推进，先参考 [docs/architecture/harness-engineering-adaptation.md](../architecture/harness-engineering-adaptation.md) 做范围判断。
+- 修正 `.github/workflows` 中 `services/callcenter-server` 路径，改为真实 [server](../../server) 构建入口。
+- 清理或删除空的 [services](../../services) 历史目录。
+- 统一发布脚本中的 `herness-demo`、`callcenter`、`ruoyi-admin` 服务名和制品名语境。
+- 持续扫描并清理文档中残留的 ProjectPilot 项目管理、搜索、计费和 CallCenter 事实误用。
 
-## P0：基线迁移与结构收敛
+## P1：文档事实同步
 
-- 将 `server/` 实际代码迁移到 JDK 17。
-- 将 `server/` 实际依赖迁移到 Spring Boot 3.x。
-- 完成 `javax.* -> jakarta.*` 代码与依赖迁移。
-- 将数据库运行基线切换到 MySQL 8.x。
-- 收敛后端目录结构到模块化单体目标形态。
+- 继续补齐 RuoYi-Vue-Plus system、monitor、tool/gen、workflow、demo 的功能设计说明。
+- 持续校准 [docs/reference/api-spec.yaml](../reference/api-spec.yaml)，确保仓库级 API 摘要与 SpringDoc 和真实 Controller 保持一致。
+- 将 [docs/reference/error-codes.md](../reference/error-codes.md) 与当前 `R`、`HttpStatus`、i18n 消息、全局异常处理对齐。
+- 为 SQL 脚本更新补充更明确的变更模板和验证清单。
 
-## P1：Web MVP 主线
+## P2：代码与质量硬化
 
-- 建立 `web/` 前端工程与基础路由。
-- 建立登录页与会话校验流程。
-- 建立项目列表页与项目详情页。
-- 建立任务列表页、任务创建与状态流转。
-- 打通前后端联调链路。
+- 修复或标记历史启动输出中的 `System.out.println`，避免与新增代码规则冲突。
+- 按风险补齐后端单元测试和前端 Vitest 覆盖。
+- 检查字段级 `@Autowired`、`javax.*`、裸 HTTP 客户端和直接跨层调用。
+- 对过长 Java 文件和方法做分阶段收敛。
 
-## P2：核心业务增强
+## P3：发布与观测
 
-- 组织管理。
-- 成员与角色管理。
-- 项目与任务搜索。
-- 用户注册、登录、登出和会话校验增强能力。
+- 修正 GitHub Actions 构建、发布、回滚 workflow。
+- 将发布制品路径统一到 `server/ruoyi-admin/target/ruoyi-admin.jar` 或实际构建产物。
+- 校验 [deploy/observability](../../deploy/observability) 与 Actuator 配置是否匹配。
+- 为 SQL 升级脚本补充发布前检查和回滚策略说明。
 
-## P3：商业化能力
+## P4：Harness 自动化
 
-- 套餐管理。
-- 订阅管理。
-- 用量统计。
-- 账单查询。
-- 支付渠道适配抽象。
-
-## P4：运营与质量支撑
-
-- API 文档持续维护。
-- 错误码治理。
-- 审计日志。
-- 指标和 telemetry。
-- 发布文档与运行手册。
-- 性能基准测试。
-
-## P5：渐进式工程硬化
-
-- 将 Harness Engineering 纠偏说明持续映射到导航、评审和验证材料。
-- 只保留对 Web MVP 交付有直接帮助的工程护栏。
-- 在真实主链路稳定后，再评估是否需要新增更重的平台化能力。
+- 增加 Markdown 元数据检查。
+- 增加 Markdown 链接检查。
+- 增加历史事实误用扫描。
+- 增加 workflow 路径存在性检查。
+- 增加 SQL 变更触发文档同步提醒。
 
 ## Backlog 维护规则
 
 - 每个任务进入迭代前必须有明确验收标准。
-- 涉及架构或边界变化的任务必须同步 [docs/architecture/README.md](../architecture/README.md) 与对应文档。
+- 涉及架构或边界变化的任务必须同步 [docs/architecture/code-map.md](../architecture/code-map.md) 与 [docs/architecture/README.md](../architecture/README.md)。
 - 涉及 API 的任务必须同步 [docs/reference/api-spec.yaml](../reference/api-spec.yaml)。
-- 涉及错误码的任务必须同步 [docs/reference/error-codes.md](../reference/error-codes.md)。
-- 产品研发主线优先于平台治理主线，除非当前任务明确属于发布、运维或观测支撑建设。
-- 如果某项建设无法直接帮助当前主线推进，应先放回 backlog，而不是立即扩张为独立体系。
+- 涉及响应码或错误消息的任务必须同步 [docs/reference/error-codes.md](../reference/error-codes.md)。
+- 涉及 SQL 的任务必须同步 [server/script/sql](../../server/script/sql) 与发布检查材料。

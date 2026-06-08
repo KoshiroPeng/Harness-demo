@@ -2,16 +2,14 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 评审清单目录入口，汇总需求、设计、代码、测试与迁移评审的统一检查入口。
+description: HernessDemo 评审清单目录入口，汇总需求、设计、代码、测试与验证证据的统一检查入口。
 ---
 
 # 评审清单总览
 
 ## 目标
 
-本目录用于沉淀 ProjectPilot 在需求、设计、代码和测试阶段的评审清单，作为项目研发过程中的统一检查入口。
-
-这些清单不是替代需求文档、详细设计文档、测试用例或代码规范，而是帮助评审人员在关键阶段快速检查高风险遗漏项。
+本目录沉淀 HernessDemo 在需求、设计、代码和测试阶段的评审清单。评审重点是确认变更是否匹配当前 RuoYi-Vue-Plus 代码事实、模块边界、SQL 脚本、API 摘要和发布支撑材料。
 
 ## 使用原则
 
@@ -21,25 +19,19 @@ description: ProjectPilot 评审清单目录入口，汇总需求、设计、代
 - 后台代码评审使用后台代码评审清单。
 - 前端代码评审使用前端代码评审清单。
 - 测试用例评审使用测试用例评审清单。
-- 需要输出评审结论时，优先使用 [docs/reviews/templates/README.md](templates/README.md) 中的统一模板。
-- 需要沉淀验证证据时，优先使用 [docs/reviews/templates/verification-evidence-template.md](templates/verification-evidence-template.md)。
+- 输出评审结论时，优先使用 [docs/reviews/templates/README.md](templates/README.md)。
+- 沉淀验证证据时，优先使用 [docs/reviews/templates/verification-evidence-template.md](templates/verification-evidence-template.md)。
 
 ## 与现有文档的关系
 
-本目录中的清单负责“评审时要检查什么”，现有文档负责“项目已经规定了什么”。
-
-例如：
-
-- 目标技术基线：见 [docs/architecture/target-technology-baseline.md](../architecture/target-technology-baseline.md)
-- CallCenter 参考架构融合说明：见 [docs/architecture/callcenter-reference-adaptation.md](../architecture/callcenter-reference-adaptation.md)
-- Harness Engineering 纠偏：见 [docs/architecture/harness-engineering-adaptation.md](../architecture/harness-engineering-adaptation.md)
+- 当前代码地图：见 [docs/architecture/code-map.md](../architecture/code-map.md)
+- 技术基线：见 [docs/architecture/target-technology-baseline.md](../architecture/target-technology-baseline.md)
+- 模块边界：见 [docs/architecture/boundaries.md](../architecture/boundaries.md)
+- Harness Engineering 落地说明：见 [docs/architecture/harness-engineering-adaptation.md](../architecture/harness-engineering-adaptation.md)
 - 命名规范：见 [docs/conventions/naming.md](../conventions/naming.md)
 - 错误处理：见 [docs/conventions/error-handling.md](../conventions/error-handling.md)
 - 测试规范：见 [docs/conventions/testing.md](../conventions/testing.md)
 - 发布与回滚材料：见 [deploy/release/README.md](../../deploy/release/README.md)
-- 可观测性材料：见 [deploy/observability/README.md](../../deploy/observability/README.md)
-
-因此，清单中涉及这些主题时，优先引用已有规范，而不是重复定义另一套规则。
 
 ## 目录索引
 
@@ -56,12 +48,11 @@ description: ProjectPilot 评审清单目录入口，汇总需求、设计、代
 
 ## 当前项目适配说明
 
-- 当前仓库主线已经切到 Web 产品研发优先，后端与前端评审都应围绕这条主线收敛。
-- 后台设计评审应优先对齐 JDK 17、Spring Boot 3.x、MySQL 8.x、MyBatis-Plus、Flyway 和模块化单体约束。
-- 前端设计与代码评审应优先对齐 Vue 3、TypeScript、Vite、共享包边界和接口契约。
-- 涉及外部调用时，必须遵守 adapter 或 `ApiClient` 抽象和错误处理规范。
-- 评审时若发现方案明显偏向平台扩张，而不是服务当前 Web MVP，应明确记录为范围偏航风险。
-- 涉及发布、配置、回滚、上线验证或观测方案时，应同步参考 [deploy/release/README.md](../../deploy/release/README.md) 与 [deploy/observability/README.md](../../deploy/observability/README.md)。
+- 后端评审应围绕 `ruoyi-admin`、`ruoyi-common-*`、`ruoyi-modules/*`、`ruoyi-extend/*` 的真实边界。
+- 前端评审应围绕 `web/src/api`、`web/src/views`、`web/src/router`、`web/src/store` 的真实结构。
+- 数据库变更必须检查 [server/script/sql](../../server/script/sql)，不能假定 Flyway 已落地。
+- 涉及 workflow、发布或回滚时，必须检查是否仍引用历史 `services/callcenter-server` 路径。
+- 评审时若发现方案继续扩写 ProjectPilot/CallCenter 过渡叙事，应记录为范围偏航风险。
 
 ## 维护规则
 

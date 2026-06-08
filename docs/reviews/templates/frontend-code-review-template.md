@@ -2,7 +2,7 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 前端代码评审输出模板，用于统一记录前端代码评审结论与整改项。
+description: HernessDemo 前端代码评审输出模板，用于统一记录前端代码评审结论与整改项。
 ---
 
 # 前端代码评审输出模板
@@ -10,9 +10,9 @@ description: ProjectPilot 前端代码评审输出模板，用于统一记录前
 关联清单：
 
 - [docs/reviews/frontend-code-review-checklist.md](../frontend-code-review-checklist.md)
-- [docs/design/web-mvp-roadmap.md](../../design/web-mvp-roadmap.md)
+- [docs/design/backend-admin-roadmap.md](../../design/backend-admin-roadmap.md)
 - [docs/conventions/task-startup-checklist.md](../../conventions/task-startup-checklist.md)
-- [docs/architecture/callcenter-reference-adaptation.md](../../architecture/callcenter-reference-adaptation.md)
+- [docs/architecture/code-map.md](../../architecture/code-map.md)
 - [docs/architecture/target-technology-baseline.md](../../architecture/target-technology-baseline.md)
 - [docs/architecture/harness-engineering-adaptation.md](../../architecture/harness-engineering-adaptation.md)
 
@@ -40,7 +40,7 @@ description: ProjectPilot 前端代码评审输出模板，用于统一记录前
 - DOM 操作、列表渲染与返回数据量是否存在性能风险：
 - 公共组件或公共方法变更是否评估影响范围：
 - 是否补齐必要的测试、验证或回归说明：
-- 是否符合 Vue 3 / TypeScript / Vite 与共享包边界：
+- 是否符合 Vue 3 / TypeScript / Vite 与现有 `web/src` 边界：
 - 是否存在与当前阶段不匹配的前端平台化抽象：
 
 ## 发现问题

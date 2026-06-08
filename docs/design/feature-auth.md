@@ -2,83 +2,94 @@
 last_updated: 2026-06-08
 status: active
 owner: "@PengKang"
-description: ProjectPilot 认证与授权功能设计，定义登录、会话与最小权限边界。
+description: HernessDemo 认证、会话、租户与权限设计说明，对齐当前 Sa-Token、客户端授权类型和租户能力。
 ---
 
-# 功能设计：认证与授权
+# 功能设计：认证、会话、租户与权限
 
 ## 背景
 
-在线项目管理平台需要识别当前用户，并按组织、项目和角色控制访问范围。
+当前认证能力来自 RuoYi-Vue-Plus 体系，真实入口位于：
 
-本设计是第一版功能边界，实际实现前需要结合产品需求和安全评审细化。
+- [server/ruoyi-admin/src/main/java/org/dromara/web/controller/AuthController.java](../../server/ruoyi-admin/src/main/java/org/dromara/web/controller/AuthController.java)
+- [server/ruoyi-admin/src/main/java/org/dromara/web/controller/CaptchaController.java](../../server/ruoyi-admin/src/main/java/org/dromara/web/controller/CaptchaController.java)
+- [server/ruoyi-admin/src/main/java/org/dromara/web/service](../../server/ruoyi-admin/src/main/java/org/dromara/web/service)
+- [server/ruoyi-common/ruoyi-common-satoken](../../server/ruoyi-common/ruoyi-common-satoken)
+- [server/ruoyi-common/ruoyi-common-tenant](../../server/ruoyi-common/ruoyi-common-tenant)
+- [web/src/api/login.ts](../../web/src/api/login.ts)
 
-在当前项目阶段，本专题属于 Web MVP 主线能力，应优先于平台化建设推进。若讨论中引用 Harness Engineering，应把它理解为帮助认证能力更稳落地的工程方法，而不是额外扩张认证平台范围。
+本文档只描述当前系统事实与后续收敛方向，不再沿用项目管理产品中的 Organization/Project/Task 权限模型。
 
-## 目标
+## 当前能力
 
-- 支持用户登录、登出和会话校验。
-- 支持基于组织和项目的权限判断。
-- 支持 Controller 到 Service 的统一身份上下文传递。
-- 认证、授权和审计能力通过 Spring 注入接入。
+- 支持登录、登出、注册。
+- 支持验证码、短信验证码、邮箱验证码。
+- 支持基于 `clientId` 与 `grantType` 的客户端授权类型控制。
+- 支持密码、短信、邮箱、社交、小程序等认证策略扩展。
+- 支持租户列表、租户启停、租户过期和租户套餐相关能力。
+- 支持 Sa-Token 登录态、角色与权限注解。
+- 支持 SSE 登录后消息推送。
 
-## 非目标
+## 关键链路
 
-- 暂不设计第三方单点登录。
-- 暂不设计多因素认证。
-- 暂不设计复杂 IAM 策略语言。
-- 暂不为了“通用平台化”提前抽象独立认证平台层。
+```mermaid
+sequenceDiagram
+    participant Web as web 登录页
+    participant Auth as AuthController
+    participant Client as ISysClientService
+    participant Tenant as SysLoginService/TenantHelper
+    participant Strategy as IAuthStrategy
+    participant SaToken as Sa-Token/LoginHelper
+    participant SSE as SseMessageUtils
 
-## 核心概念
-
-- User: 平台用户。
-- Organization: 企业或团队。
-- Project: 项目空间。
-- Role: 用户在组织或项目内的角色。
-- Permission: 可执行动作，例如创建任务、修改成员、查看账单。
-
-## 建议数据流
-
-```text
-Client
-  -> Auth Filter
-  -> Security Context
-  -> Controller
-  -> Service 权限校验
-  -> Mapper
-  -> MySQL
+    Web->>Auth: POST /auth/login
+    Auth->>Client: queryByClientId(clientId)
+    Auth->>Tenant: checkTenant(tenantId)
+    Auth->>Strategy: login(body, client, grantType)
+    Strategy->>SaToken: 建立登录态
+    Auth->>SSE: 发布登录欢迎消息
+    Auth-->>Web: R<LoginVo>
 ```
 
 ## 后端边界
 
-- Controller 只读取当前身份，不写复杂权限规则。
-- Service 负责业务级权限校验。
-- Mapper 只负责查询权限相关数据。
-- 认证组件、权限检查器和审计组件必须通过 Spring 注入。
+- Controller 负责协议入口、参数接收和响应返回。
+- `SysLoginService`、`SysRegisterService` 负责登录、登出、注册和租户校验。
+- `IAuthStrategy` 负责按授权类型分发认证策略。
+- Sa-Token 能力必须通过 `ruoyi-common-satoken` 与相关工具类接入。
+- 租户能力必须通过 `ruoyi-common-tenant` 与 `ruoyi-system` 服务接入。
 
-## 错误码
+## 前端边界
 
-相关错误码登记在 [docs/reference/error-codes.md](../reference/error-codes.md)：
+- 登录相关请求放在 [web/src/api/login.ts](../../web/src/api/login.ts)。
+- 登录状态、用户信息、权限路由需要同步检查 [web/src/store/modules/user.ts](../../web/src/store/modules/user.ts)、[web/src/store/modules/permission.ts](../../web/src/store/modules/permission.ts) 和 [web/src/router](../../web/src/router)。
 
-- `AUTH_REQUIRED`
-- `AUTH_TOKEN_EXPIRED`
-- `AUTH_FORBIDDEN`
+## 设计约束
+
+- 新增认证方式前，先检查是否能扩展现有 `IAuthStrategy`。
+- 新增客户端授权类型前，必须同步客户端配置、权限说明、前端请求参数和测试。
+- 新增租户规则前，必须同步 SQL、接口、前端页面和错误消息。
+- 禁止绕过 Sa-Token 自建并行登录态。
+- 禁止把第三方登录 SDK 直接扩散到业务 Controller。
+
+## 错误与消息
+
+当前系统大量使用 `R(code,msg,data)` 与 i18n 消息键：
+
+- 响应结构见 [docs/reference/error-codes.md](../reference/error-codes.md)。
+- i18n 消息位于 [server/ruoyi-admin/src/main/resources/i18n](../../server/ruoyi-admin/src/main/resources/i18n)。
+
+修改认证错误提示时，应同步检查 i18n 文件、前端提示和测试。
 
 ## 测试要求
 
-- 未登录访问受保护接口返回 401。
-- 无权限访问项目资源返回 403。
-- 有权限用户可以访问对应项目资源。
-- Service 层权限失败必须有单元测试覆盖。
+- 登录成功、客户端授权类型错误、租户不可用、验证码错误、登出、注册关闭等路径应有回归覆盖。
+- 新增认证策略必须覆盖成功、失败、锁定或限流场景。
+- 涉及租户隔离时，必须覆盖跨租户访问风险。
 
-## 待确认问题
+## 推荐联读
 
-- 会话采用服务端 session 还是 token。
-- 组织角色和项目角色是否需要分离。
-- 是否需要支持邀请链接和成员审批。
-
-## 当前阶段判断
-
-- 优先级：高，属于当前 Web MVP 主线。
-- 实现策略：先满足登录、会话校验、最小权限判断，再逐步增强。
-- 纠偏提醒：如果设计开始明显转向复杂统一身份平台，应回到 [docs/architecture/harness-engineering-adaptation.md](../architecture/harness-engineering-adaptation.md) 重新判断范围。
+- [docs/architecture/data-flow.md](../architecture/data-flow.md)
+- [docs/reference/api-spec.yaml](../reference/api-spec.yaml)
+- [docs/reference/error-codes.md](../reference/error-codes.md)
+- [docs/reviews/backend-design-review-checklist.md](../reviews/backend-design-review-checklist.md)
