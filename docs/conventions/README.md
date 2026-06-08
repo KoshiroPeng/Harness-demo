@@ -21,6 +21,7 @@ description: ProjectPilot 工程规范目录入口，汇总编码、测试、日
 | 方法规模 | [docs/conventions/method-size.md](method-size.md) |
 | 文档链接规范 | [docs/conventions/document-links.md](document-links.md) |
 | 文档元数据规范 | [docs/conventions/document-metadata.md](document-metadata.md) |
+| Harness 自动化落地方案 | [docs/conventions/harness-automation-roadmap.md](harness-automation-roadmap.md) |
 | 任务启动清单 | [docs/conventions/task-startup-checklist.md](task-startup-checklist.md) |
 | 评审清单总览 | [docs/reviews/README.md](../reviews/README.md) |
 | 验证证据模板 | [docs/reviews/templates/verification-evidence-template.md](../reviews/templates/verification-evidence-template.md) |

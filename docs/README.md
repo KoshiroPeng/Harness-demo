@@ -33,6 +33,7 @@ description: ProjectPilot 文档导航总入口，按任务场景组织研发、
 | Harness Engineering 参考手册 | [docs/architecture/harness-engineering-reference.md](architecture/harness-engineering-reference.md) |
 | 编码规范 | [docs/conventions/README.md](conventions/README.md) |
 | 文档元数据规范 | [docs/conventions/document-metadata.md](conventions/document-metadata.md) |
+| Harness 自动化落地方案 | [docs/conventions/harness-automation-roadmap.md](conventions/harness-automation-roadmap.md) |
 | 任务启动清单 | [docs/conventions/task-startup-checklist.md](conventions/task-startup-checklist.md) |
 | 设计文档 | [docs/design/README.md](design/README.md) |
 | 计划文档 | [docs/plans/README.md](plans/README.md) |
