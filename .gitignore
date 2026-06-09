@@ -1,6 +1,7 @@
 # Maven
 target/
 **/target/
+**/.flattened-pom.xml
 
 # Node / frontend
 node_modules/
@@ -11,6 +12,8 @@ dist/
 **/.output/
 .turbo/
 **/.turbo/
+web/src/types/auto-imports.d.ts
+web/src/types/components.d.ts
 
 # Logs
 *.log
