@@ -4,9 +4,9 @@ import io.undertow.UndertowOptions;
 import io.undertow.server.DefaultByteBufferPool;
 import io.undertow.server.handlers.DisallowedMethodsHandler;
 import io.undertow.util.HttpString;
+import lombok.RequiredArgsConstructor;
 import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
 import org.dromara.common.core.utils.SpringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
@@ -19,10 +19,10 @@ import org.springframework.core.task.VirtualThreadTaskExecutor;
  * @author Lion Li
  */
 @AutoConfiguration
+@RequiredArgsConstructor
 public class UndertowConfig implements WebServerFactoryCustomizer<UndertowServletWebServerFactory> {
 
-    @Autowired
-    private ServerProperties serverProperties;
+    private final ServerProperties serverProperties;
 
     /**
      * 自定义 Undertow 配置

@@ -1,13 +1,13 @@
 package org.dromara.common.translation.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.dromara.common.translation.annotation.TranslationType;
 import org.dromara.common.translation.core.TranslationInterface;
 import org.dromara.common.translation.core.handler.TranslationBeanSerializerModifier;
 import org.dromara.common.translation.core.handler.TranslationHandler;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 
 import java.util.HashMap;
@@ -21,13 +21,12 @@ import java.util.Map;
  */
 @Slf4j
 @AutoConfiguration
+@RequiredArgsConstructor
 public class TranslationConfig {
 
-    @Autowired
-    private List<TranslationInterface<?>> list;
+    private final List<TranslationInterface<?>> list;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @PostConstruct
     public void init() {

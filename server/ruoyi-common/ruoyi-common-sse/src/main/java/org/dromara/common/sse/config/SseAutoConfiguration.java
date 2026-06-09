@@ -24,8 +24,8 @@ public class SseAutoConfiguration {
     }
 
     @Bean
-    public SseTopicListener sseTopicListener() {
-        return new SseTopicListener();
+    public SseTopicListener sseTopicListener(SseEmitterManager sseEmitterManager) {
+        return new SseTopicListener(sseEmitterManager);
     }
 
     @Bean

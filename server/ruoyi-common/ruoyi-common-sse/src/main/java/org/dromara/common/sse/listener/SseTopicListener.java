@@ -1,9 +1,9 @@
 package org.dromara.common.sse.listener;
 
 import cn.hutool.core.collection.CollUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.sse.core.SseEmitterManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.Ordered;
@@ -14,10 +14,10 @@ import org.springframework.core.Ordered;
  * @author Lion Li
  */
 @Slf4j
+@RequiredArgsConstructor
 public class SseTopicListener implements ApplicationRunner, Ordered {
 
-    @Autowired
-    private SseEmitterManager sseEmitterManager;
+    private final SseEmitterManager sseEmitterManager;
 
     /**
      * 在Spring Boot应用程序启动时初始化SSE主题订阅监听器

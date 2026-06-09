@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.redis.config.properties.RedissonProperties;
 import org.dromara.common.redis.handler.KeyPrefixHandler;
@@ -16,7 +17,6 @@ import org.redisson.client.codec.StringCodec;
 import org.redisson.codec.CompositeCodec;
 import org.redisson.codec.TypedJsonJacksonCodec;
 import org.redisson.spring.starter.RedissonAutoConfigurationCustomizer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -33,10 +33,10 @@ import java.util.TimeZone;
 @Slf4j
 @AutoConfiguration
 @EnableConfigurationProperties(RedissonProperties.class)
+@RequiredArgsConstructor
 public class RedisConfig {
 
-    @Autowired
-    private RedissonProperties redissonProperties;
+    private final RedissonProperties redissonProperties;
 
     @Bean
     public RedissonAutoConfigurationCustomizer redissonCustomizer() {

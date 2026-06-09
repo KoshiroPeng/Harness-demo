@@ -3,7 +3,7 @@ package org.dromara.demo.controller;
 import org.dromara.common.core.domain.R;
 import org.dromara.demo.domain.TestDemoEncrypt;
 import org.dromara.demo.mapper.TestDemoEncryptMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,12 +20,12 @@ import java.util.Map;
  * @author Lion Li
  */
 @Validated
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/demo/encrypt")
 public class TestEncryptController {
 
-    @Autowired
-    private TestDemoEncryptMapper mapper;
+    private final TestDemoEncryptMapper mapper;
     @Value("${mybatis-encryptor.enable}")
     private Boolean encryptEnable;
 
