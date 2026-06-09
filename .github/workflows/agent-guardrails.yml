@@ -1,7 +1,6 @@
 name: HarnessBase CI
 
 on:
-  # 中文说明：PR 阶段执行质量门禁，阻止不符合基线的改动进入主线。
   pull_request:
     paths:
       - ".github/workflows/**"
@@ -14,7 +13,6 @@ on:
       - ".editorconfig"
       - ".gitattributes"
       - ".gitignore"
-  # 中文说明：主分支合并后再次执行 CI，并产出可追溯的构建制品元数据。
   push:
     branches:
       - main
@@ -29,14 +27,12 @@ on:
       - ".editorconfig"
       - ".gitattributes"
       - ".gitignore"
-  # 中文说明：允许手工触发，便于在未改动代码时验证流水线配置。
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  # 中文说明：同一分支上的 CI 仅保留最新一次，减少重复排队和资源浪费。
   group: harnessbase-ci-${{ github.ref }}
   cancel-in-progress: true
 
@@ -95,7 +91,7 @@ jobs:
         run: |
           mkdir -p artifacts
           {
-            echo "service=ruoyi-admin"
+            echo "service_scope=microservice-backend"
             echo "git_sha=${GITHUB_SHA}"
             echo "git_ref=${GITHUB_REF}"
             echo "run_id=${GITHUB_RUN_ID}"
@@ -104,7 +100,7 @@ jobs:
             echo "generated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } > artifacts/build-metadata.txt
 
-      - name: 上传构建产物与报告
+      - name: 上传后端构建产物与报告
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -112,7 +108,10 @@ jobs:
           if-no-files-found: ignore
           path: |
             artifacts/**
-            server/ruoyi-admin/target/*.jar
+            server/ruoyi-auth/target/*.jar
+            server/ruoyi-gateway/target/*.jar
+            server/ruoyi-modules/**/target/*.jar
+            server/ruoyi-visual/**/target/*.jar
             server/**/target/surefire-reports/**
 
   web:
@@ -128,27 +127,20 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 设置 pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.5.2
-
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: pnpm
-          cache-dependency-path: web/pnpm-lock.yaml
 
       - name: 安装前端依赖
         working-directory: web
-        run: pnpm install --frozen-lockfile
+        run: npm install
 
       - name: 构建 HarnessBase 前端
         working-directory: web
-        run: pnpm build:prod
+        run: npm run build:prod
 
-      - name: 上传 HarnessBase 前端制品
+      - name: 上传前端构建产物
         if: always()
         uses: actions/upload-artifact@v4
         with:

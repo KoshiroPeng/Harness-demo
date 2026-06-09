@@ -7,6 +7,10 @@ on:
         description: "目标环境"
         required: true
         type: environment
+      target_module:
+        description: "目标服务模块，例如 ruoyi-auth、ruoyi-gateway、ruoyi-modules/ruoyi-system、ruoyi-visual/ruoyi-monitor"
+        required: true
+        type: string
       release_version:
         description: "发布版本号，例如 0.1.0-rc1"
         required: true
@@ -25,8 +29,7 @@ permissions:
   contents: read
 
 concurrency:
-  # 中文说明：同一环境的发布编排串行化，避免多人同时对同一环境发版。
-  group: server-release-${{ inputs.target_environment }}
+  group: server-release-${{ inputs.target_environment }}-${{ inputs.target_module }}
   cancel-in-progress: false
 
 jobs:
@@ -49,6 +52,7 @@ jobs:
       - name: 输出环境参数快照
         run: |
           echo "目标环境：${{ inputs.target_environment }}"
+          echo "目标模块：${{ inputs.target_module }}"
           echo "发布版本：${{ inputs.release_version }}"
           echo "Dry Run：${{ inputs.dry_run }}"
           echo "环境变量中的 APP_PROFILE：${{ vars.APP_PROFILE }}"
@@ -64,22 +68,24 @@ jobs:
           cache: maven
           cache-dependency-path: server/pom.xml
 
-      - name: 执行发布前全量校验
+      - name: 执行目标模块构建
         working-directory: server
-        run: mvn -B -DskipTests package
+        run: mvn -B -pl "${{ inputs.target_module }}" -am -DskipTests package
 
       - name: 生成发布计划与元数据
         id: bundle_meta
         run: |
           chmod +x deploy/release/render-release-plan.sh
           mkdir -p release-output
-          jar_path="$(find server/ruoyi-admin/target -maxdepth 1 -name 'ruoyi-admin.jar' | head -n 1)"
+          module_name="$(basename "${{ inputs.target_module }}")"
+          module_target_dir="server/${{ inputs.target_module }}/target"
+          jar_path="$(find "${module_target_dir}" -maxdepth 1 -name '*.jar' ! -name 'original-*.jar' | head -n 1)"
           if [[ -z "${jar_path}" ]]; then
-            echo "未找到发布 Jar：server/ruoyi-admin/target/ruoyi-admin.jar" >&2
+            echo "未找到目标模块发布 Jar：${module_target_dir}" >&2
             exit 1
           fi
           jar_name="$(basename "${jar_path}")"
-          artifact_name="harness-base-server-release-${{ inputs.release_version }}-${{ github.run_number }}"
+          artifact_name="harness-base-${module_name}-release-${{ inputs.release_version }}-${{ github.run_number }}"
           echo "artifact_name=${artifact_name}" >> "$GITHUB_OUTPUT"
           echo "jar_name=${jar_name}" >> "$GITHUB_OUTPUT"
           RELEASE_VERSION='${{ inputs.release_version }}' \
@@ -93,6 +99,8 @@ jobs:
           {
             echo "release_version=${{ inputs.release_version }}"
             echo "target_environment=${{ inputs.target_environment }}"
+            echo "target_module=${{ inputs.target_module }}"
+            echo "jar_name=${jar_name}"
             echo "dry_run=${{ inputs.dry_run }}"
             echo "git_sha=${GITHUB_SHA}"
             echo "generated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -105,7 +113,7 @@ jobs:
           name: ${{ steps.bundle_meta.outputs.artifact_name }}
           if-no-files-found: error
           path: |
-            server/ruoyi-admin/target/ruoyi-admin.jar
+            server/${{ inputs.target_module }}/target/*.jar
             release-output/**
             deploy/release/**
 
@@ -120,6 +128,21 @@ jobs:
             echo "- deploy/release/release-checklist.md"
             echo "- deploy/observability/README.md"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  approval-gate:
+    name: 环境审批门禁
+    needs: build-release-bundle
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+
+    steps:
+      - name: 记录审批信息
+        run: |
+          echo "目标环境：${{ inputs.target_environment }}"
+          echo "目标模块：${{ inputs.target_module }}"
+          echo "发布版本：${{ inputs.release_version }}"
+          echo "说明：如仓库配置了 GitHub Environment 审批规则，此处会自动生效。"
+          echo "请对照 deploy/release/release-checklist.md 完成审批前检查。"
 
   deploy-release-candidate:
     name: 执行远端部署
@@ -156,24 +179,10 @@ jobs:
           APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}
           DRY_RUN: ${{ inputs.dry_run }}
           RELEASE_VERSION: ${{ inputs.release_version }}
-          ARTIFACT_PATH: release-bundle/server/ruoyi-admin/target/${{ needs.build-release-bundle.outputs.jar_name }}
+          ARTIFACT_PATH: release-bundle/server/${{ inputs.target_module }}/target/${{ needs.build-release-bundle.outputs.jar_name }}
         run: |
           chmod +x deploy/release/deploy-via-ssh.sh
           bash deploy/release/deploy-via-ssh.sh
-
-  approval-gate:
-    name: 环境审批门禁
-    needs: build-release-bundle
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.target_environment }}
-
-    steps:
-      - name: 记录审批结果
-        run: |
-          echo "目标环境：${{ inputs.target_environment }}"
-          echo "发布版本：${{ inputs.release_version }}"
-          echo "说明：如仓库配置了 GitHub Environment 审批规则，此处会自动生效。"
-          echo "请对照 deploy/release/release-checklist.md 完成审批前检查。"
 
   verify-release-candidate:
     name: 发布后验证
@@ -198,7 +207,7 @@ jobs:
           DRY_RUN='${{ inputs.dry_run }}' \
           bash deploy/release/verify-release.sh
 
-      - name: 输出验证与运行手册入口
+      - name: 输出验证入口
         run: |
           {
             echo "## 发布后验证入口"

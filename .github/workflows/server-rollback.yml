@@ -8,7 +8,7 @@ on:
         required: true
         type: environment
       rollback_artifact:
-        description: "目标回滚制品名称，例如 ruoyi-admin.jar"
+        description: "目标回滚制品名称，例如 ruoyi-auth.jar 或 ruoyi-modules-system.jar"
         required: true
         type: string
       rollback_reason:
@@ -29,7 +29,6 @@ permissions:
   contents: read
 
 concurrency:
-  # 中文说明：同一环境的回滚必须串行，避免多次回滚互相覆盖。
   group: server-rollback-${{ inputs.target_environment }}
   cancel-in-progress: false
 
@@ -79,7 +78,7 @@ jobs:
           chmod +x deploy/release/rollback-via-ssh.sh
           bash deploy/release/rollback-via-ssh.sh
 
-      - name: 输出回滚手册入口
+      - name: 输出回滚入口
         run: |
           {
             echo "## 回滚入口"

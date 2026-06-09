@@ -2,7 +2,7 @@
 last_updated: 2026-06-09
 status: active
 owner: "@PengKang"
-description: HarnessBase GitHub 工作流入口，汇总 CI、发布、回滚与远端主机初始化 workflow 的职责、输入与联读文档。
+description: HarnessBase GitHub 工作流入口，汇总当前微服务 CI、发布、回滚与远端主机初始化 workflow 的职责、输入与联读文档。
 ---
 
 # GitHub 工作流入口
@@ -26,10 +26,20 @@ description: HarnessBase GitHub 工作流入口，汇总 CI、发布、回滚与
 
 | Workflow | 文件 | 作用 |
 | --- | --- | --- |
-| CI / 护栏校验 | [agent-guardrails.yml](workflows/agent-guardrails.yml) | 先执行文档护栏检查，再执行后端构建、前端构建与基础制品上传 |
-| 服务发布 | [server-release.yml](workflows/server-release.yml) | 构建发布包、生成发布计划、执行 SSH 部署、发布后验证 |
-| 服务回滚 | [server-rollback.yml](workflows/server-rollback.yml) | 远端回滚指定制品并执行回滚后验证 |
+| CI / 护栏校验 | [agent-guardrails.yml](workflows/agent-guardrails.yml) | 先执行文档护栏检查，再执行后端 Maven 构建、前端 npm 构建与构建产物上传 |
+| 服务发布 | [server-release.yml](workflows/server-release.yml) | 手动指定微服务模块，构建目标模块制品、生成发布计划、执行 SSH 部署、发布后验证 |
+| 服务回滚 | [server-rollback.yml](workflows/server-rollback.yml) | 按服务级制品名称回滚远端当前版本并执行回滚后验证 |
 | 远端初始化 | [bootstrap-remote-host.yml](workflows/bootstrap-remote-host.yml) | 初始化远端目录、环境文件与 systemd 服务骨架 |
+
+## 最近一次本地基线验证
+
+截至 2026-06-09，当前 workflow 依赖的本地执行链已经按真实项目结构完成了一轮人工验证：
+
+- 后端在 [server](../server) 下执行 `mvn -B -DskipTests package`，结果为 `BUILD SUCCESS`。
+- 前端在 [web](../web) 下执行 `npm.cmd install` 与 `npm.cmd run build:prod`，结果均成功。
+- 前端生产构建存在体积告警，但没有阻塞构建完成；当前问题属于性能治理范围，不属于执行链断裂。
+
+这意味着当前 CI 文档口径已经从“历史单体 + pnpm 假设”收口到“真实微服务 + npm 构建”主线。
 
 ## 运行前必须确认
 
@@ -53,7 +63,8 @@ description: HarnessBase GitHub 工作流入口，汇总 CI、发布、回滚与
 - `python .github/scripts/doc_guardrails.py` 是否作为最前置文档门禁执行
 - 后端 `mvn -B -DskipTests package`
 - 前端 `npm install` 与 `npm run build:prod`
-- 当前前端是否仍被 workflow 当成 `pnpm` / Vite 项目
+- 当前 workflow 是否已经按 Vue 2 / npm 前端事实执行，而不是旧的 `pnpm` / Vite 假设
+- 前端构建若出现告警，先区分是 `warning` 还是真实 `error`，不要把体积告警误判成构建失败
 
 ### 做正式发布
 
@@ -66,9 +77,10 @@ description: HarnessBase GitHub 工作流入口，汇总 CI、发布、回滚与
 
 重点关注：
 
-- 当前 workflow 是否仍错误指向 `server/ruoyi-admin/target/ruoyi-admin.jar`
-- SSH 发布脚本与 systemd 模板是否匹配当前微服务发布方式
+- 当前 workflow 是否仍错误指向单一 `ruoyi-admin` 制品，而不是当前手动选择的微服务模块制品
+- 发布输入中的 `target_module`、`APP_SERVICE_NAME` 与远端部署目录是否匹配当前目标服务
 - 发布后验证地址是否可访问 `/actuator/health` 或其他真实健康检查入口
+- `target_module` 应直接对应 Maven 模块路径，例如 `ruoyi-auth`、`ruoyi-gateway`、`ruoyi-modules/ruoyi-system`、`ruoyi-visual/ruoyi-monitor`
 
 ### 做回滚
 
