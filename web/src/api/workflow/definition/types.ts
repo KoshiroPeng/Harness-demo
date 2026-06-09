@@ -27,8 +27,3 @@ export interface FlowDefinitionForm {
   formCustom: string;
   modelValue: string;
 }
-
-export interface definitionXmlVO {
-  xml: string[];
-  xmlStr: string;
-}

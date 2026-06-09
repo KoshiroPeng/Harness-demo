@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { FlowDefinitionQuery, definitionXmlVO, FlowDefinitionForm, FlowDefinitionVo } from '@/api/workflow/definition/types';
+import { FlowDefinitionQuery, FlowDefinitionForm, FlowDefinitionVo } from '@/api/workflow/definition/types';
 import { AxiosPromise } from 'axios';
 
 /**
@@ -25,18 +25,6 @@ export const unPublishList = (query: FlowDefinitionQuery): AxiosPromise<FlowDefi
     url: `/workflow/definition/unPublishList`,
     method: 'get',
     params: query
-  });
-};
-
-/**
- * 通过流程定义id获取xml
- * @param definitionId 流程定义id
- * @returns
- */
-export const definitionXml = (definitionId: string): AxiosPromise<definitionXmlVO> => {
-  return request({
-    url: `/workflow/definition/definitionXml/${definitionId}`,
-    method: 'get'
   });
 };
 
