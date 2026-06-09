@@ -17,6 +17,7 @@ description: HarnessBase GitHub 工作流入口，汇总 CI、发布、回滚与
 
 - [AGENTS.md](../AGENTS.md)：仓库级协作规则与 Git 提交要求
 - [docs/README.md](../docs/README.md)：统一文档导航入口
+- [docs/plans/phase1-doc-check-ci-brief.md](../docs/plans/phase1-doc-check-ci-brief.md)：第一阶段文档结构类检查 CI 接入说明
 - [deploy/release/README.md](../deploy/release/README.md)：发布脚本说明
 - [deploy/release/environment-variable-template.md](../deploy/release/environment-variable-template.md)：环境变量与密钥模板
 - [deploy/release/release-checklist.md](../deploy/release/release-checklist.md)：发布与回滚检查清单
@@ -49,6 +50,7 @@ description: HarnessBase GitHub 工作流入口，汇总 CI、发布、回滚与
 
 重点关注：
 
+- 文档结构类检查是否作为前置阻断门禁接入
 - 后端 `mvn -B -DskipTests package`
 - 前端 `pnpm install --frozen-lockfile` 与 `pnpm build:prod`
 - 制品上传路径是否仍存在
