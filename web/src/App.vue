@@ -1,20 +1,20 @@
 <template>
-  <el-config-provider :locale="appStore.locale" :size="appStore.size">
+  <div id="app">
     <router-view />
-  </el-config-provider>
+    <theme-picker />
+  </div>
 </template>
 
-<script setup lang="ts">
-import { useSettingsStore } from '@/store/modules/settings';
-import { handleThemeStyle } from '@/utils/theme';
-import { useAppStore } from '@/store/modules/app';
+<script>
+import ThemePicker from "@/components/ThemePicker"
 
-const appStore = useAppStore();
-
-onMounted(() => {
-  nextTick(() => {
-    // 初始化主题样式
-    handleThemeStyle(useSettingsStore().theme);
-  });
-});
+export default {
+  name: "App",
+  components: { ThemePicker }
+}
 </script>
+<style scoped>
+#app .theme-picker {
+  display: none;
+}
+</style>

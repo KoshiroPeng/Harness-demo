@@ -1,64 +1,48 @@
 <template>
-  <div
-    class="sidebar-logo-container"
-    :class="{ collapse: collapse }"
-  >
-    <transition :enter-active-class="proxy?.animate.logoAnimate.enter" mode="out-in">
+  <div class="sidebar-logo-container" :class="{'collapse':collapse}" :style="{ backgroundColor: sideTheme === 'theme-dark' && navType !== 3 ? variables.menuBackground : variables.menuLightBackground }">
+    <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="logo" :src="logo" class="sidebar-logo" />
-        <h1 v-else class="sidebar-title">
-          {{ title }}
-        </h1>
+        <h1 v-else class="sidebar-title" :style="{ color: sideTheme === 'theme-dark' && navType !== 3 ? variables.logoTitleColor : variables.logoLightTitleColor }">{{ title }} </h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <img v-if="logo" :src="logo" class="sidebar-logo" />
-        <h1 class="sidebar-title">
-          {{ title }}
-        </h1>
+        <h1 class="sidebar-title" :style="{ color: sideTheme === 'theme-dark' && navType !== 3 ? variables.logoTitleColor : variables.logoLightTitleColor }">{{ title }} </h1>
       </router-link>
     </transition>
   </div>
 </template>
 
-<script setup lang="ts">
-import variables from '@/assets/styles/variables.module.scss';
-import logo from '@/assets/logo/logo.png';
-import { useSettingsStore } from '@/store/modules/settings';
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-import { NavTypeEnum } from '@/enums/NavTypeEnum';
+<script>
+import logoImg from '@/assets/logo/logo.png'
+import variables from '@/assets/styles/variables.scss'
 
-defineProps({
-  collapse: {
-    type: Boolean,
-    required: true
+export default {
+  name: 'SidebarLogo',
+  props: {
+    collapse: {
+      type: Boolean,
+      required: true
+    }
+  },
+  computed: {
+    variables() {
+      return variables
+    },
+    sideTheme() {
+      return this.$store.state.settings.sideTheme
+    },
+    navType() {
+      return this.$store.state.settings.navType
+    }
+  },
+  data() {
+    return {
+      title: process.env.VUE_APP_TITLE,
+      logo: logoImg
+    }
   }
-});
-
-const title = import.meta.env.VITE_APP_LOGO_TITLE;
-const settingsStore = useSettingsStore();
-const sideTheme = computed(() => settingsStore.sideTheme);
-
-// 获取Logo背景色
-const getLogoBackground = computed(() => {
-  if (settingsStore.isDark) {
-    return 'var(--sidebar-bg)'
-  }
-  if (settingsStore.navType == NavTypeEnum.TOP) {
-    return variables.menuLightBackground
-  }
-  return sideTheme.value === 'theme-dark' ? variables.menuBg : variables.menuLightBackground
-})
-
-// 获取Logo文字颜色
-const getLogoTextColor = computed(() => {
-  if (settingsStore.isDark) {
-    return 'var(--sidebar-text)'
-  }
-  if (settingsStore.navType == NavTypeEnum.TOP) {
-    return variables.logoLightTitleColor
-  }
-  return sideTheme.value === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor
-})
+}
 </script>
 
 <style lang="scss" scoped>
@@ -75,7 +59,7 @@ const getLogoTextColor = computed(() => {
   position: relative;
   height: 50px;
   line-height: 50px;
-  background: v-bind(getLogoBackground);
+  background: #2b2f3a;
   text-align: center;
   overflow: hidden;
 
@@ -88,13 +72,12 @@ const getLogoTextColor = computed(() => {
       height: 32px;
       vertical-align: middle;
       margin-right: 12px;
-      margin-left: 12px;
     }
 
     & .sidebar-title {
       display: inline-block;
       margin: 0;
-      color: v-bind(getLogoTextColor);
+      color: #fff;
       font-weight: 600;
       line-height: 50px;
       font-size: 14px;

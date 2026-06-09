@@ -1,4 +1,4 @@
-@use './variables.module.scss' as *;
+@import './variables.scss';
 
 @mixin colorBtn($color) {
   background: $color;
@@ -14,38 +14,38 @@
 }
 
 .blue-btn {
-  @include colorBtn($blue);
+  @include colorBtn($blue)
 }
 
 .light-blue-btn {
-  @include colorBtn($light-blue);
+  @include colorBtn($light-blue)
 }
 
 .red-btn {
-  @include colorBtn($red);
+  @include colorBtn($red)
 }
 
 .pink-btn {
-  @include colorBtn($pink);
+  @include colorBtn($pink)
 }
 
 .green-btn {
-  @include colorBtn($green);
+  @include colorBtn($green)
 }
 
 .tiffany-btn {
-  @include colorBtn($tiffany);
+  @include colorBtn($tiffany)
 }
 
 .yellow-btn {
-  @include colorBtn($yellow);
+  @include colorBtn($yellow)
 }
 
 .pan-btn {
   font-size: 14px;
   color: #fff;
   padding: 14px 36px;
-  border-radius: var(--app-radius-md);
+  border-radius: 8px;
   border: none;
   outline: none;
   transition: 600ms ease all;
@@ -95,5 +95,5 @@
   margin: 0;
   padding: 10px 15px;
   font-size: 14px;
-  border-radius: var(--app-radius-sm);
+  border-radius: 4px;
 }

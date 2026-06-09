@@ -1,56 +1,57 @@
 <template>
-  <div :class="{ 'has-logo': showLogo }" :style="{ backgroundColor: bgColor }">
-    <logo v-if="showLogo" :collapse="isCollapse" />
-    <el-scrollbar :class="sideTheme" wrap-class="scrollbar-wrapper">
-      <transition :enter-active-class="proxy?.animate.menuSearchAnimate.enter" mode="out-in">
-        <el-menu
-          :default-active="activeMenu"
-          :collapse="isCollapse"
-          :background-color="bgColor"
-          :text-color="textColor"
-          :unique-opened="true"
-          :active-text-color="theme"
-          :collapse-transition="false"
-          :popper-offset="12"
-          mode="vertical"
-        >
-          <sidebar-item v-for="(r, index) in sidebarRouters" :key="r.path + index" :item="r" :base-path="r.path" />
-        </el-menu>
-      </transition>
-    </el-scrollbar>
-  </div>
+    <div :class="['sidebar-theme-wrapper', {'has-logo':showLogo}, settings.sideTheme]" :style="{ backgroundColor: settings.sideTheme === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground }">
+        <logo v-if="showLogo" :collapse="isCollapse" />
+        <el-scrollbar :class="settings.sideTheme" wrap-class="scrollbar-wrapper">
+            <el-menu
+                :default-active="activeMenu"
+                :collapse="isCollapse"
+                :background-color="settings.sideTheme === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground"
+                :text-color="settings.sideTheme === 'theme-dark' ? variables.menuColor : variables.menuLightColor"
+                :unique-opened="true"
+                :active-text-color="settings.theme"
+                :collapse-transition="false"
+                mode="vertical"
+            >
+                <sidebar-item
+                    v-for="(route, index) in sidebarRouters"
+                    :key="route.path  + index"
+                    :item="route"
+                    :base-path="route.path"
+                />
+            </el-menu>
+        </el-scrollbar>
+    </div>
 </template>
 
-<script setup lang="ts">
-import Logo from './Logo.vue';
-import SidebarItem from './SidebarItem.vue';
-import variables from '@/assets/styles/variables.module.scss';
-import { useAppStore } from '@/store/modules/app';
-import { useSettingsStore } from '@/store/modules/settings';
-import { usePermissionStore } from '@/store/modules/permission';
-import { RouteRecordRaw } from 'vue-router';
+<script>
+import { mapGetters, mapState } from "vuex"
+import Logo from "./Logo"
+import SidebarItem from "./SidebarItem"
+import variables from "@/assets/styles/variables.scss"
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-
-const route = useRoute();
-const appStore = useAppStore();
-const settingsStore = useSettingsStore();
-const permissionStore = usePermissionStore();
-const sidebarRouters = computed<RouteRecordRaw[]>(() => permissionStore.getSidebarRoutes());
-const showLogo = computed(() => settingsStore.sidebarLogo);
-const sideTheme = computed(() => settingsStore.sideTheme);
-const theme = computed(() => settingsStore.theme);
-const isCollapse = computed(() => !appStore.sidebar.opened);
-
-const activeMenu = computed(() => {
-  const { meta, path } = route;
-  // if set path, the sidebar will highlight the path you set
-  if (meta.activeMenu) {
-    return meta.activeMenu;
-  }
-  return path;
-});
-
-const bgColor = computed(() => (sideTheme.value === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground));
-const textColor = computed(() => (sideTheme.value === 'theme-dark' ? variables.menuColor : variables.menuLightColor));
+export default {
+    components: { SidebarItem, Logo },
+    computed: {
+        ...mapState(["settings"]),
+        ...mapGetters(["sidebarRouters", "sidebar"]),
+        activeMenu() {
+            const route = this.$route
+            const { meta, path } = route
+            // if set path, the sidebar will highlight the path you set
+            if (meta.activeMenu) {
+                return meta.activeMenu
+            }
+            return path
+        },
+        showLogo() {
+            return this.$store.state.settings.sidebarLogo
+        },
+        variables() {
+            return variables
+        },
+        isCollapse() {
+            return !this.sidebar.opened
+        }
+    }
+}
 </script>

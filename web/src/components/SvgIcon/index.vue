@@ -1,40 +1,61 @@
 <template>
-  <svg :class="svgClass" aria-hidden="true">
-    <use :xlink:href="iconName" :fill="color" />
+  <div v-if="isExternal" :style="styleExternalIcon" class="svg-external-icon svg-icon" v-on="$listeners" />
+  <svg v-else :class="svgClass" aria-hidden="true" v-on="$listeners">
+    <use :xlink:href="iconName" />
   </svg>
 </template>
 
-<script setup lang="ts">
-import { propTypes } from '@/utils/propTypes';
+<script>
+import { isExternal } from '@/utils/validate'
 
-const props = defineProps({
-  iconClass: propTypes.string.isRequired,
-  className: propTypes.string.def(''),
-  color: propTypes.string.def('')
-});
-const iconName = computed(() => `#icon-${props.iconClass}`);
-const svgClass = computed(() => {
-  if (props.className) {
-    return `svg-icon ${props.className}`;
+export default {
+  name: 'SvgIcon',
+  props: {
+    iconClass: {
+      type: String,
+      required: true
+    },
+    className: {
+      type: String,
+      default: ''
+    }
+  },
+  computed: {
+    isExternal() {
+      return isExternal(this.iconClass)
+    },
+    iconName() {
+      return `#icon-${this.iconClass}`
+    },
+    svgClass() {
+      if (this.className) {
+        return 'svg-icon ' + this.className
+      } else {
+        return 'svg-icon'
+      }
+    },
+    styleExternalIcon() {
+      return {
+        mask: `url(${this.iconClass}) no-repeat 50% 50%`,
+        '-webkit-mask': `url(${this.iconClass}) no-repeat 50% 50%`
+      }
+    }
   }
-  return 'svg-icon';
-});
+}
 </script>
 
-<style lang="scss" scoped>
-.sub-el-icon,
-.nav-icon {
-  display: inline-block;
-  font-size: 15px;
-  margin-right: 12px;
-  position: relative;
-}
-
+<style scoped>
 .svg-icon {
   width: 1em;
   height: 1em;
-  position: relative;
+  vertical-align: -0.15em;
   fill: currentColor;
-  vertical-align: -2px;
+  overflow: hidden;
+}
+
+.svg-external-icon {
+  background-color: currentColor;
+  mask-size: cover!important;
+  display: inline-block;
 }
 </style>

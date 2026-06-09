@@ -1,4 +1,1 @@
-org.dromara.common.core.config.ApplicationConfig
-org.dromara.common.core.config.ThreadPoolConfig
-org.dromara.common.core.config.ValidatorConfig
-org.dromara.common.core.utils.SpringUtils
+com.ruoyi.common.core.utils.SpringUtils

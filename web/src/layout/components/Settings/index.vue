@@ -1,312 +1,347 @@
 <template>
-  <el-drawer v-model="showSettings" :with-header="false" direction="rtl" size="300px" close-on-click-modal>
-    <h3 class="drawer-title">菜单导航设置</h3>
-    <div class="nav-wrap">
-      <el-tooltip content="左侧菜单" placement="bottom">
-        <div
-          class="item left"
-          @click="handleNavType(NavTypeEnum.LEFT)"
-          :style="{ '--theme': theme }"
-          :class="{ activeItem: navType == NavTypeEnum.LEFT }"
-        >
-          <b></b><b></b>
-        </div>
-      </el-tooltip>
+  <el-drawer size="280px" :visible="showSettings" :with-header="false" :append-to-body="true" :before-close="closeSetting" :lock-scroll="false">
+    <div class="drawer-container">
+      <div>
+        <div class="setting-drawer-content">
+          <div class="setting-drawer-title">
+            <h3 class="drawer-title">菜单导航设置</h3>
+          </div>
+          <div class="nav-wrap">
+            <el-tooltip content="左侧菜单" placement="bottom">
+              <div class="item left" @click="handleNavType(1)" :style="{'--theme': theme}" :class="{ activeItem: navType == 1 }">
+                <b></b><b></b>
+              </div>
+            </el-tooltip>
 
-      <el-tooltip content="混合菜单" placement="bottom">
-        <div
-          class="item mix"
-          @click="handleNavType(NavTypeEnum.MIX)"
-          :style="{ '--theme': theme }"
-          :class="{ activeItem: navType == NavTypeEnum.MIX }"
-        >
-          <b></b><b></b>
-        </div>
-      </el-tooltip>
-      <el-tooltip content="顶部菜单" placement="bottom">
-        <div
-          class="item top"
-          @click="handleNavType(NavTypeEnum.TOP)"
-          :style="{ '--theme': theme }"
-          :class="{ activeItem: navType == NavTypeEnum.TOP }"
-        >
-          <b></b><b></b>
-        </div>
-      </el-tooltip>
-    </div>
+            <el-tooltip content="混合菜单" placement="bottom">
+              <div class="item mix" @click="handleNavType(2)" :style="{'--theme': theme}" :class="{ activeItem: navType == 2 }">
+                <b></b><b></b>
+              </div>
+            </el-tooltip>
+            <el-tooltip content="顶部菜单" placement="bottom">
+              <div class="item top" @click="handleNavType(3)" :style="{'--theme': theme}" :class="{ activeItem: navType == 3 }">
+                <b></b><b></b>
+              </div>
+            </el-tooltip>
+          </div>
+          <div class="setting-drawer-title">
+            <h3 class="drawer-title">主题风格设置</h3>
+          </div>
+          <div class="setting-drawer-block-checbox">
+            <div class="setting-drawer-block-checbox-item" @click="handleTheme('theme-dark')">
+              <img src="@/assets/images/dark.svg" alt="dark">
+              <div v-if="sideTheme === 'theme-dark'" class="setting-drawer-block-checbox-selectIcon" style="display: block;">
+                <i aria-label="图标: check" class="anticon anticon-check">
+                  <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false" class="">
+                    <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"/>
+                  </svg>
+                </i>
+              </div>
+            </div>
+            <div class="setting-drawer-block-checbox-item" @click="handleTheme('theme-light')">
+              <img src="@/assets/images/light.svg" alt="light">
+              <div v-if="sideTheme === 'theme-light'" class="setting-drawer-block-checbox-selectIcon" style="display: block;">
+                <i aria-label="图标: check" class="anticon anticon-check">
+                  <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false" class="">
+                    <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"/>
+                  </svg>
+                </i>
+              </div>
+            </div>
+          </div>
 
-    <h3 class="drawer-title">主题风格设置</h3>
-
-    <div class="setting-drawer-block-checbox">
-      <div class="setting-drawer-block-checbox-item" @click="handleTheme(SideThemeEnum.DARK)">
-        <img src="@/assets/images/dark.svg" alt="dark" />
-        <div v-if="sideTheme === 'theme-dark'" class="setting-drawer-block-checbox-selectIcon" style="display: block">
-          <i aria-label="图标: check" class="anticon anticon-check">
-            <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false" class>
-              <path
-                d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"
-              />
-            </svg>
-          </i>
+          <div class="drawer-item">
+            <span>主题颜色</span>
+            <theme-picker style="float: right;height: 26px;margin: -3px 8px 0 0;" @change="themeChange" />
+          </div>
         </div>
+
+        <el-divider/>
+
+        <h3 class="drawer-title">系统布局配置</h3>
+
+        <div class="drawer-item">
+          <span>开启 Tags-Views</span>
+          <el-switch v-model="tagsView" class="drawer-switch" />
+        </div>
+
+        <div class="drawer-item">
+          <span>持久化标签页</span>
+          <el-switch v-model="tagsViewPersist" :disabled="!tagsView" class="drawer-switch" />
+        </div>
+
+        <div class="drawer-item">
+          <span>显示页签图标</span>
+          <el-switch v-model="tagsIcon" :disabled="!tagsView" class="drawer-switch" />
+        </div>
+
+        <div class="drawer-item">
+          <span>固定 Header</span>
+          <el-switch v-model="fixedHeader" class="drawer-switch" />
+        </div>
+
+        <div class="drawer-item">
+          <span>显示 Logo</span>
+          <el-switch v-model="sidebarLogo" class="drawer-switch" />
+        </div>
+
+        <div class="drawer-item">
+          <span>动态标题</span>
+          <el-switch v-model="dynamicTitle" class="drawer-switch" />
+        </div>
+
+        <div class="drawer-item">
+          <span>底部版权</span>
+          <el-switch v-model="footerVisible" class="drawer-switch" />
+        </div>
+
+        <el-divider/>
+
+        <el-button size="small" type="primary" plain icon="el-icon-document-add" @click="saveSetting">保存配置</el-button>
+        <el-button size="small" plain icon="el-icon-refresh" @click="resetSetting">重置配置</el-button>
       </div>
-      <div class="setting-drawer-block-checbox-item" @click="handleTheme(SideThemeEnum.LIGHT)">
-        <img src="@/assets/images/light.svg" alt="light" />
-        <div v-if="sideTheme === 'theme-light'" class="setting-drawer-block-checbox-selectIcon" style="display: block">
-          <i aria-label="图标: check" class="anticon anticon-check">
-            <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false" class>
-              <path
-                d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"
-              />
-            </svg>
-          </i>
-        </div>
-      </div>
     </div>
-    <div class="drawer-item">
-      <span>主题颜色</span>
-      <span class="comp-style">
-        <el-color-picker v-model="theme" :predefine="predefineColors" @change="themeChange" />
-      </span>
-    </div>
-    <div class="drawer-item">
-      <span>深色模式</span>
-      <span class="comp-style">
-        <el-switch v-model="isDark" class="drawer-switch" @change="toggleDark" />
-      </span>
-    </div>
-    <div class="drawer-item">
-      <span>页面圆角</span>
-      <span class="comp-style">
-        <el-slider v-model="radiusBase" :min="0" :max="32" :step="2" style="width: 120px" @change="radiusBaseChange" />
-      </span>
-    </div>
-
-    <el-divider />
-
-    <h3 class="drawer-title">系统布局配置</h3>
-
-    <div class="drawer-item">
-      <span>开启 Tags-Views</span>
-      <span class="comp-style">
-        <el-switch v-model="settingsStore.tagsView" class="drawer-switch" />
-      </span>
-    </div>
-
-    <div class="drawer-item">
-      <span>显示页签图标</span>
-      <span class="comp-style">
-        <el-switch v-model="settingsStore.tagsIcon" :disabled="!settingsStore.tagsView" class="drawer-switch" />
-      </span>
-    </div>
-
-    <div class="drawer-item">
-      <span>固定 Header</span>
-      <span class="comp-style">
-        <el-switch v-model="settingsStore.fixedHeader" class="drawer-switch" />
-      </span>
-    </div>
-
-    <div class="drawer-item">
-      <span>显示 Logo</span>
-      <span class="comp-style">
-        <el-switch v-model="settingsStore.sidebarLogo" class="drawer-switch" />
-      </span>
-    </div>
-
-    <div class="drawer-item">
-      <span>动态标题</span>
-      <span class="comp-style">
-        <el-switch v-model="settingsStore.dynamicTitle" class="drawer-switch" @change="dynamicTitleChange" />
-      </span>
-    </div>
-
-    <el-divider />
-
-    <el-button type="primary" plain icon="DocumentAdd" @click="saveSetting">保存配置</el-button>
-    <el-button plain icon="Refresh" @click="resetSetting">重置配置</el-button>
   </el-drawer>
 </template>
 
-<script setup lang="ts">
-import { useDynamicTitle } from '@/utils/dynamicTitle';
-import { useAppStore } from '@/store/modules/app';
-import { useSettingsStore } from '@/store/modules/settings';
-import { usePermissionStore } from '@/store/modules/permission';
-import { handleThemeStyle } from '@/utils/theme';
-import { SideThemeEnum } from '@/enums/SideThemeEnum';
-import { NavTypeEnum } from '@/enums/NavTypeEnum';
-import defaultSettings from '@/settings';
+<script>
+import ThemePicker from '@/components/ThemePicker'
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const appStore = useAppStore();
-const settingsStore = useSettingsStore();
-const permissionStore = usePermissionStore();
-
-const showSettings = ref(false);
-const theme = ref(settingsStore.theme);
-const sideTheme = ref(settingsStore.sideTheme);
-const storeSettings = computed(() => settingsStore);
-const predefineColors = ref(['#409EFF', '#ff4500', '#ff8c00', '#ffd700', '#90ee90', '#00ced1', '#1e90ff', '#c71585']);
-const navType = ref(settingsStore.navType);
-const radiusBase = ref(settingsStore.radiusBase);
-// 是否暗黑模式
-const isDark = useDark({
-  storageKey: 'useDarkKey',
-  valueDark: 'dark',
-  valueLight: 'light'
-});
-// 匹配菜单颜色
-watch(isDark, () => {
-  if (isDark.value) {
-    settingsStore.sideTheme = SideThemeEnum.DARK;
-  } else {
-    settingsStore.sideTheme = sideTheme.value;
-  }
-});
-const toggleDark = () => useToggle(isDark);
-
-/** 菜单导航设置 */
-watch(
-  () => navType,
-  (val: string) => {
-    if (val.value === NavTypeEnum.TOP) {
-      appStore.toggleSideBarHide(true);
-      permissionStore.setSidebarRouters(permissionStore.defaultRoutes as any);
-    } else if (val.value === NavTypeEnum.LEFT) {
-      appStore.toggleSideBarHide(false);
-      permissionStore.setSidebarRouters(permissionStore.defaultRoutes as any);
-    } else if (val.value === NavTypeEnum.MIX) {
-      appStore.toggleSideBarHide(false);
+export default {
+  components: { ThemePicker },
+  expose: ['openSetting'],
+  data() {
+    return {
+      theme: this.$store.state.settings.theme,
+      sideTheme: this.$store.state.settings.sideTheme,
+      navType: this.$store.state.settings.navType,
+      showSettings: false
     }
   },
-  { immediate: true, deep: true }
-);
-
-const handleNavType = (val: NavTypeEnum) => {
-  settingsStore.navType = val;
-  navType.value = val;
-};
-
-const dynamicTitleChange = () => {
-  // 动态设置网页标题
-  useDynamicTitle();
-};
-
-const themeChange = (val: string) => {
-  settingsStore.theme = val;
-  handleThemeStyle(val);
-};
-const radiusBaseChange = (val: number) => {
-  settingsStore.radiusBase = val;
-  const el = document.documentElement;
-  el.style.setProperty('--app-radius-base', `${val}px`);
-  el.style.setProperty('--app-radius-sm', `${Math.round(val * 0.6)}px`);
-  el.style.setProperty('--app-radius-md', `${val}px`);
-  el.style.setProperty('--app-radius-lg', `${Math.round(val * 1.4)}px`);
-  el.style.setProperty('--el-border-radius-base', `${val}px`);
-  el.style.setProperty('--el-border-radius-small', `${Math.round(val * 0.6)}px`);
-};
-const handleTheme = (val: string) => {
-  sideTheme.value = val;
-  if (isDark.value && val === SideThemeEnum.LIGHT) {
-    // 暗黑模式颜色不变
-    settingsStore.sideTheme = SideThemeEnum.DARK;
-    return;
+  computed: {
+    fixedHeader: {
+      get() {
+        return this.$store.state.settings.fixedHeader
+      },
+      set(val) {
+        this.$store.dispatch('settings/changeSetting', {
+          key: 'fixedHeader',
+          value: val
+        })
+      }
+    },
+    tagsViewPersist: {
+      get() {
+        return this.$store.state.settings.tagsViewPersist
+      },
+      set(val) {
+        this.$store.dispatch('settings/changeSetting', {
+          key: 'tagsViewPersist',
+          value: val
+        })
+      }
+    },
+    tagsView: {
+      get() {
+        return this.$store.state.settings.tagsView
+      },
+      set(val) {
+        this.$store.dispatch('settings/changeSetting', {
+          key: 'tagsView',
+          value: val
+        })
+      }
+    },
+    tagsIcon: {
+      get() {
+        return this.$store.state.settings.tagsIcon
+      },
+      set(val) {
+        this.$store.dispatch('settings/changeSetting', {
+          key: 'tagsIcon',
+          value: val
+        })
+      }
+    },
+    sidebarLogo: {
+      get() {
+        return this.$store.state.settings.sidebarLogo
+      },
+      set(val) {
+        this.$store.dispatch('settings/changeSetting', {
+          key: 'sidebarLogo',
+          value: val
+        })
+      }
+    },
+    dynamicTitle: {
+      get() {
+        return this.$store.state.settings.dynamicTitle
+      },
+      set(val) {
+        this.$store.dispatch('settings/changeSetting', {
+          key: 'dynamicTitle',
+          value: val
+        })
+        this.$store.dispatch('settings/setTitle', this.$store.state.settings.title)
+      }
+    },
+    footerVisible: {
+      get() {
+        return this.$store.state.settings.footerVisible
+      },
+      set(val) {
+        this.$store.dispatch('settings/changeSetting', {
+          key: 'footerVisible',
+          value: val
+        })
+      }
+    }
+  },
+  watch: {
+    navType: {
+      handler(val) {
+        if (val == 1) {
+          this.$store.dispatch("app/toggleSideBarHide", false)
+        }
+        if (val == 2) {
+        }
+        if (val == 3) {
+          this.$store.dispatch("app/toggleSideBarHide", true)
+        }
+        if ([1, 3].includes(val)) {
+          this.$store.commit("SET_SIDEBAR_ROUTERS",this.$store.state.permission.defaultRoutes)
+        }
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  methods: {
+    themeChange(val) {
+      this.$store.dispatch('settings/changeSetting', {
+        key: 'theme',
+        value: val
+      })
+      this.theme = val
+    },
+    handleTheme(val) {
+      this.$store.dispatch('settings/changeSetting', {
+        key: 'sideTheme',
+        value: val
+      })
+      this.sideTheme = val
+    },
+    handleNavType(val) {
+      this.$store.dispatch('settings/changeSetting', {
+        key: 'navType',
+        value: val
+      })
+      this.navType = val
+    },
+    openSetting() {
+      this.showSettings = true
+    },
+    closeSetting(){
+      this.showSettings = false
+    },
+    saveSetting() {
+      this.$modal.loading("正在保存到本地，请稍候...")
+      if (!this.tagsViewPersist) {
+        this.$cache.local.remove('tags-view-visited')
+      }
+      this.$cache.local.set(
+        "layout-setting",
+        `{
+            "navType":${this.navType},
+            "tagsView":${this.tagsView},
+            "tagsIcon":${this.tagsIcon},
+            "tagsViewPersist":${this.tagsViewPersist},
+            "fixedHeader":${this.fixedHeader},
+            "sidebarLogo":${this.sidebarLogo},
+            "dynamicTitle":${this.dynamicTitle},
+            "footerVisible":${this.footerVisible},
+            "sideTheme":"${this.sideTheme}",
+            "theme":"${this.theme}"
+          }`
+      )
+      setTimeout(this.$modal.closeLoading(), 1000)
+    },
+    resetSetting() {
+      this.$modal.loading("正在清除设置缓存并刷新，请稍候...")
+      this.$cache.local.remove('tags-view-visited')
+      this.$cache.local.remove("layout-setting")
+      setTimeout("window.location.reload()", 1000)
+    }
   }
-  settingsStore.sideTheme = val;
-};
-const saveSetting = () => {
-  proxy?.$modal.loading('正在保存到本地，请稍候...');
-  const settings = useStorage<LayoutSetting>('layout-setting', defaultSettings);
-  settings.value.tagsView = storeSettings.value.tagsView;
-  settings.value.tagsIcon = storeSettings.value.tagsIcon;
-  settings.value.fixedHeader = storeSettings.value.fixedHeader;
-  settings.value.sidebarLogo = storeSettings.value.sidebarLogo;
-  settings.value.dynamicTitle = storeSettings.value.dynamicTitle;
-  settings.value.sideTheme = storeSettings.value.sideTheme;
-  settings.value.theme = storeSettings.value.theme;
-  settings.value.navType = storeSettings.value.navType;
-  settings.value.radiusBase = storeSettings.value.radiusBase;
-  setTimeout(() => {
-    proxy?.$modal.closeLoading();
-  }, 1000);
-};
-const resetSetting = () => {
-  proxy?.$modal.loading('正在清除设置缓存并刷新，请稍候...');
-  useStorage<any>('layout-setting', null).value = null;
-  setTimeout('window.location.reload()', 1000);
-};
-const openSetting = () => {
-  showSettings.value = true;
-};
-
-onMounted(() => {
-  radiusBaseChange(storeSettings.value.radiusBase);
-});
-
-defineExpose({
-  openSetting
-});
+}
 </script>
 
 <style lang="scss" scoped>
-.setting-drawer-title {
-  margin-bottom: 12px;
-  color: rgba(0, 0, 0, 0.85);
-  line-height: 22px;
-  font-weight: bold;
-  .drawer-title {
+.setting-drawer-content {
+  .setting-drawer-title {
+    margin-bottom: 12px;
+    color: rgba(0, 0, 0, .85);
     font-size: 14px;
+    line-height: 22px;
+    font-weight: bold;
   }
-}
-.setting-drawer-block-checbox {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 20px;
 
-  .setting-drawer-block-checbox-item {
-    position: relative;
-    margin-right: 16px;
-    border-radius: 2px;
-    cursor: pointer;
+  .setting-drawer-block-checbox {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
 
-    img {
-      width: 48px;
-      height: 48px;
-    }
+    .setting-drawer-block-checbox-item {
+      position: relative;
+      margin-right: 16px;
+      border-radius: 2px;
+      cursor: pointer;
 
-    .custom-img {
-      width: 48px;
-      height: 38px;
-      border-radius: 5px;
-      box-shadow: 1px 1px 2px #898484;
-    }
+      img {
+        width: 48px;
+        height: 48px;
+      }
 
-    .setting-drawer-block-checbox-selectIcon {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 100%;
-      height: 100%;
-      padding-top: 15px;
-      padding-left: 24px;
-      color: #1890ff;
-      font-weight: 700;
-      font-size: 14px;
+      .setting-drawer-block-checbox-selectIcon {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        padding-top: 15px;
+        padding-left: 24px;
+        color: #1890ff;
+        font-weight: 700;
+        font-size: 14px;
+      }
     }
   }
 }
 
-.drawer-item {
-  padding: 12px 0;
+.drawer-container {
+  padding: 20px;
   font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
 
-  .comp-style {
-    float: right;
-    margin: -3px 8px 0px 0px;
+  .drawer-title {
+    margin-bottom: 12px;
+    color: rgba(0, 0, 0, .85);
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .drawer-item {
+    color: rgba(0, 0, 0, .65);
+    font-size: 14px;
+    padding: 12px 0;
+  }
+
+  .drawer-switch {
+    float: right
   }
 }
 
