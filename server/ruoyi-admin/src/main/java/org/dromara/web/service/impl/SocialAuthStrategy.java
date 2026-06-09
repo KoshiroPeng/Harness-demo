@@ -23,8 +23,8 @@ import org.dromara.common.tenant.helper.TenantHelper;
 import org.dromara.system.domain.vo.SysClientVo;
 import org.dromara.system.domain.vo.SysSocialVo;
 import org.dromara.system.domain.vo.SysUserVo;
-import org.dromara.system.mapper.SysUserMapper;
 import org.dromara.system.service.ISysSocialService;
+import org.dromara.system.service.ISysUserService;
 import org.dromara.web.domain.vo.LoginVo;
 import org.dromara.web.service.IAuthStrategy;
 import org.dromara.web.service.SysLoginService;
@@ -45,7 +45,7 @@ public class SocialAuthStrategy implements IAuthStrategy {
 
     private final SocialProperties socialProperties;
     private final ISysSocialService sysSocialService;
-    private final SysUserMapper userMapper;
+    private final ISysUserService userService;
     private final SysLoginService loginService;
 
     /**
@@ -105,7 +105,7 @@ public class SocialAuthStrategy implements IAuthStrategy {
     }
 
     private SysUserVo loadUser(Long userId) {
-        SysUserVo user = userMapper.selectVoById(userId);
+        SysUserVo user = userService.selectUserById(userId);
         if (ObjectUtil.isNull(user)) {
             log.info("登录用户：{} 不存在.", "");
             throw new UserException("user.not.exists", "");

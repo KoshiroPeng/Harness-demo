@@ -67,6 +67,8 @@ public interface ISysUserService {
      */
     SysUserVo selectUserByPhonenumber(String phonenumber);
 
+    SysUserVo selectUserByEmail(String email);
+
     /**
      * 通过用户ID查询用户
      *
@@ -153,6 +155,8 @@ public interface ISysUserService {
      * @return 结果
      */
     boolean registerUser(SysUserBo user, String tenantId);
+
+    void recordLoginInfo(Long userId, String ip);
 
     /**
      * 修改用户信息

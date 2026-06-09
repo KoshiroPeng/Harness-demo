@@ -20,6 +20,7 @@ from urllib.parse import unquote
 ROOT = Path(__file__).resolve().parent.parent.parent
 REQUIRED_FRONTMATTER_KEYS = ("last_updated", "status", "owner", "description")
 MARKDOWN_EXTENSIONS = {".md", ".markdown"}
+IGNORED_DIR_NAMES = {"node_modules", ".git", "target", "dist", ".idea"}
 
 
 @dataclass(frozen=True)
@@ -37,7 +38,14 @@ def repo_rel(path: Path) -> str:
 
 
 def iter_markdown_files() -> Iterable[Path]:
-    return sorted(path for path in ROOT.rglob("*.md") if path.is_file())
+    files: list[Path] = []
+    for path in ROOT.rglob("*.md"):
+        if not path.is_file():
+            continue
+        if any(part in IGNORED_DIR_NAMES for part in path.relative_to(ROOT).parts):
+            continue
+        files.append(path)
+    return sorted(files)
 
 
 def is_governance_markdown(path: Path) -> bool:

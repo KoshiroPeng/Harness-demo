@@ -21,6 +21,7 @@ import org.dromara.common.core.service.UserService;
 import org.dromara.common.core.utils.*;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.mybatis.helper.DataPermissionHelper;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.system.domain.SysUser;
 import org.dromara.system.domain.SysUserPost;
@@ -167,6 +168,11 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     @Override
     public SysUserVo selectUserByPhonenumber(String phonenumber) {
         return baseMapper.selectVoOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getPhonenumber, phonenumber));
+    }
+
+    @Override
+    public SysUserVo selectUserByEmail(String email) {
+        return baseMapper.selectVoOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getEmail, email));
     }
 
     /**
@@ -334,6 +340,16 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         SysUser sysUser = MapstructUtils.convert(user, SysUser.class);
         sysUser.setTenantId(tenantId);
         return baseMapper.insert(sysUser) > 0;
+    }
+
+    @Override
+    public void recordLoginInfo(Long userId, String ip) {
+        SysUser sysUser = new SysUser();
+        sysUser.setUserId(userId);
+        sysUser.setLoginIp(ip);
+        sysUser.setLoginDate(DateUtils.getNowDate());
+        sysUser.setUpdateBy(userId);
+        DataPermissionHelper.ignore(() -> baseMapper.updateById(sysUser));
     }
 
     /**

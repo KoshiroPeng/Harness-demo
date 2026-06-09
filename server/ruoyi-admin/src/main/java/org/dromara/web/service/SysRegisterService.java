@@ -1,7 +1,6 @@
 package org.dromara.web.service;
 
 import cn.hutool.crypto.digest.BCrypt;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.constant.Constants;
 import org.dromara.common.core.constant.GlobalConstants;
@@ -18,9 +17,7 @@ import org.dromara.common.log.event.LogininforEvent;
 import org.dromara.common.redis.utils.RedisUtils;
 import org.dromara.common.tenant.helper.TenantHelper;
 import org.dromara.common.web.config.properties.CaptchaProperties;
-import org.dromara.system.domain.SysUser;
 import org.dromara.system.domain.bo.SysUserBo;
-import org.dromara.system.mapper.SysUserMapper;
 import org.dromara.system.service.ISysUserService;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +31,6 @@ import org.springframework.stereotype.Service;
 public class SysRegisterService {
 
     private final ISysUserService userService;
-    private final SysUserMapper userMapper;
     private final CaptchaProperties captchaProperties;
 
     /**
@@ -58,10 +54,8 @@ public class SysRegisterService {
         sysUser.setPassword(BCrypt.hashpw(password));
         sysUser.setUserType(userType);
 
-        boolean exist = TenantHelper.dynamic(tenantId, () -> {
-            return userMapper.exists(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getUserName, sysUser.getUserName()));
-        });
+        boolean exist = TenantHelper.dynamic(tenantId,
+            () -> userService.selectUserByUserName(sysUser.getUserName()) != null);
         if (exist) {
             throw new UserException("user.register.save.error", username);
         }
