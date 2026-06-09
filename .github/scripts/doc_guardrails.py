@@ -5,6 +5,7 @@
 - A01：治理型 Markdown 元数据标头检查
 - A02：Markdown 相对链接与锚点检查
 - A03：已删除文档引用检查（并入 A02）
+- A04：历史事实误用扫描（提醒模式）
 - A05：workflow 路径存在性检查
 """
 
@@ -23,6 +24,40 @@ REQUIRED_FRONTMATTER_KEYS = ("last_updated", "status", "owner", "description")
 MARKDOWN_EXTENSIONS = {".md", ".markdown"}
 IGNORED_DIR_NAMES = {"node_modules", ".git", "target", "dist", ".idea"}
 WORKFLOW_GLOB = ".github/workflows/*.yml"
+HISTORY_FACT_TERMS = (
+    "RuoYi-Vue-Plus",
+    "ruoyi-admin",
+    "ruoyi-extend",
+    "org.dromara",
+    "server/script/sql",
+    "ProjectPilot",
+    "CallCenter",
+    "services/callcenter-server",
+    "Spring Boot 3",
+    "Vue 3",
+    "Vite",
+    "Pinia",
+    "TypeScript",
+    "pnpm",
+)
+HISTORY_CONTEXT_ALLOWLIST = (
+    "历史",
+    "旧",
+    "过期",
+    "误用",
+    "纠偏",
+    "禁止",
+    "不应",
+    "不再",
+    "不是",
+    "不存在",
+    "当前不存在",
+    "后续若引入",
+    "条件性",
+    "命中词",
+    "扫描对象",
+    "高风险命中词",
+)
 GENERATED_PATH_PREFIXES = (
     "artifacts",
     "release-output",
@@ -83,6 +118,15 @@ def is_governance_markdown(path: Path) -> bool:
         return True
 
     return False
+
+
+def is_history_scan_markdown(path: Path) -> bool:
+    rel = repo_rel(path)
+
+    if rel in {"AGENTS.md", "README.md", ".github/README.md", "server/README.md", "web/README.md"}:
+        return True
+
+    return rel.startswith("docs/") or rel.startswith("deploy/")
 
 
 def read_text(path: Path) -> str:
@@ -241,6 +285,49 @@ def check_links() -> list[Finding]:
     return findings
 
 
+def term_pattern(term: str) -> re.Pattern[str]:
+    return re.compile(rf"(?<![A-Za-z0-9_.-]){re.escape(term)}(?![A-Za-z0-9_.-])")
+
+
+def is_allowed_history_context(lines: list[str], line_index: int) -> bool:
+    context_start = max(0, line_index - 12)
+    context_lines = lines[context_start : min(len(lines), line_index + 2)]
+    context = " ".join(context_lines)
+    return any(keyword in context for keyword in HISTORY_CONTEXT_ALLOWLIST)
+
+
+def check_history_fact_terms() -> list[Finding]:
+    findings: list[Finding] = []
+    rule = "docs/conventions/automation-check-catalog.md"
+    patterns = [(term, term_pattern(term)) for term in HISTORY_FACT_TERMS]
+
+    for path in iter_markdown_files():
+        if not is_history_scan_markdown(path):
+            continue
+
+        lines = read_text(path).splitlines()
+        for line_index, line in enumerate(lines):
+            for term, pattern in patterns:
+                if not pattern.search(line):
+                    continue
+
+                if is_allowed_history_context(lines, line_index):
+                    continue
+
+                findings.append(
+                    Finding(
+                        check_id="A04",
+                        level="提醒",
+                        path=repo_rel(path),
+                        problem=f"第 {line_index + 1} 行疑似历史事实误用: {term}",
+                        rule=rule,
+                        suggestion="人工复核该词是否属于当前事实；若是纠偏语境，请补充明确的历史、误用或禁止说明",
+                    )
+                )
+
+    return findings
+
+
 def iter_workflow_files() -> Iterable[Path]:
     return sorted(ROOT.glob(WORKFLOW_GLOB))
 
@@ -392,13 +479,16 @@ def check_workflow_paths() -> list[Finding]:
 
 
 def print_summary(findings: list[Finding]) -> None:
-    if not findings:
-        print("[A01/A02/A03/A05][通过] 文档与 workflow 护栏检查通过")
-        print("说明: 治理型 Markdown 标头、相对链接、锚点和 workflow 路径检查均未发现问题")
+    blockers = [finding for finding in findings if finding.level == "阻断"]
+    reminders = [finding for finding in findings if finding.level == "提醒"]
+
+    if not blockers and not reminders:
+        print("[A01/A02/A03/A04/A05][通过] 文档与 workflow 护栏检查通过")
+        print("说明: 治理型 Markdown 标头、相对链接、锚点、历史事实误用扫描和 workflow 路径检查均未发现问题")
         return
 
     grouped: dict[str, list[Finding]] = {}
-    for finding in findings:
+    for finding in blockers:
         grouped.setdefault(finding.check_id, []).append(finding)
 
     for check_id in ("A01", "A02", "A05"):
@@ -421,14 +511,28 @@ def print_summary(findings: list[Finding]) -> None:
         print(f"建议: {items[0].suggestion}")
         print()
 
+    if reminders:
+        print("[A04][提醒] 历史事实误用扫描发现需要人工复核的命中项")
+        for index, item in enumerate(reminders, 1):
+            print(f"{index}. 文件: {item.path}")
+            print(f"   问题: {item.problem}")
+        print(f"规则: {reminders[0].rule}")
+        print(f"建议: {reminders[0].suggestion}")
+        print()
+
+    if not blockers:
+        print("[A01/A02/A03/A04/A05][通过] 未发现阻断问题")
+        print("说明: A04 当前为提醒模式，命中项只提示人工复核，不阻断主线")
+
 
 def main() -> int:
     findings: list[Finding] = []
     findings.extend(check_frontmatter())
     findings.extend(check_links())
+    findings.extend(check_history_fact_terms())
     findings.extend(check_workflow_paths())
     print_summary(findings)
-    return 1 if findings else 0
+    return 1 if any(finding.level == "阻断" for finding in findings) else 0
 
 
 if __name__ == "__main__":

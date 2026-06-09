@@ -17,7 +17,7 @@ description: HarnessBase 第三阶段 workflow 路径护栏说明，记录工作
 
 - A05 已由 [.github/scripts/doc_guardrails.py](../../.github/scripts/doc_guardrails.py) 覆盖。
 - [agent-guardrails.yml](../../.github/workflows/agent-guardrails.yml) 已在后端和前端构建前执行该脚本。
-- 本地执行 `python .github/scripts/doc_guardrails.py` 应输出 A01/A02/A03/A05 通过。
+- 本地执行 `python .github/scripts/doc_guardrails.py` 应输出 A01/A02/A03/A04/A05 通过。
 - 第一版只校验能静态判断的仓库内路径；动态表达式、远端路径和构建产物目录不做阻断。
 
 ## 适用范围

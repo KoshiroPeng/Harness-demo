@@ -26,7 +26,7 @@ description: HarnessBase GitHub 工作流入口，汇总当前微服务 CI、发
 
 | Workflow | 文件 | 作用 |
 | --- | --- | --- |
-| CI / 护栏校验 | [agent-guardrails.yml](workflows/agent-guardrails.yml) | 先执行文档护栏检查，再执行后端 Maven 构建、前端 npm 构建与构建产物上传 |
+| CI / 护栏校验 | [agent-guardrails.yml](workflows/agent-guardrails.yml) | 先执行文档、历史事实和 workflow 护栏检查，再执行后端 Maven 构建、前端 npm 构建与构建产物上传 |
 | 服务发布 | [server-release.yml](workflows/server-release.yml) | 手动指定微服务模块，构建目标模块制品、生成发布计划、执行 SSH 部署、发布后验证 |
 | 服务回滚 | [server-rollback.yml](workflows/server-rollback.yml) | 按服务级制品名称回滚远端当前版本并执行回滚后验证 |
 | 远端初始化 | [bootstrap-remote-host.yml](workflows/bootstrap-remote-host.yml) | 初始化远端目录、环境文件与 systemd 服务骨架 |
@@ -60,7 +60,7 @@ description: HarnessBase GitHub 工作流入口，汇总当前微服务 CI、发
 
 重点关注：
 
-- `python .github/scripts/doc_guardrails.py` 是否作为最前置文档门禁执行
+- `python .github/scripts/doc_guardrails.py` 是否作为最前置文档、历史事实和 workflow 门禁执行
 - 后端 `mvn -B -DskipTests package`
 - 前端 `npm install` 与 `npm run build:prod`
 - 当前 workflow 是否已经按 Vue 2 / npm 前端事实执行
