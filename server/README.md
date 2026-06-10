@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-06-09
+last_updated: 2026-06-10
 status: active
 owner: "@PengKang"
 description: HarnessBase 后端工程入口，汇总当前微服务模块、启动入口、常用命令、SQL 路径与后端协作导航。
@@ -44,7 +44,7 @@ server/
 | [ruoyi-modules/ruoyi-file](./ruoyi-modules/ruoyi-file) | 文件服务 |
 | [ruoyi-visual/ruoyi-monitor](./ruoyi-visual/ruoyi-monitor) | 监控服务 |
 | [sql](./sql) | 当前 SQL 脚本目录 |
-| [docker](./docker) | Docker 配置 |
+| [docker](./docker) | 历史 Docker 资产与容器化参考材料 |
 | [bin](./bin) | 启动辅助脚本 |
 
 ## 启动入口
@@ -80,6 +80,7 @@ mvn -B -pl ruoyi-modules/ruoyi-system -am -DskipTests compile
 
 - 服务边界与依赖规则：[docs/architecture/boundaries.md](../docs/architecture/boundaries.md)
 - 真实代码地图：[docs/architecture/code-map.md](../docs/architecture/code-map.md)
+- docker-compose 部署入口：[deploy/compose/README.md](../deploy/compose/README.md)
 - 后端开发执行指南：[docs/conventions/task-startup-checklist.md#开发后端代码](../docs/conventions/task-startup-checklist.md#开发后端代码)
 - 后端代码评审清单：[docs/reviews/backend-code-review-checklist.md](../docs/reviews/backend-code-review-checklist.md)
 - 后端设计评审清单：[docs/reviews/backend-design-review-checklist.md](../docs/reviews/backend-design-review-checklist.md)
@@ -89,6 +90,7 @@ mvn -B -pl ruoyi-modules/ruoyi-system -am -DskipTests compile
 - 当前 SQL 事实目录是 [server/sql](./sql)
 - 当前仓库未见 Flyway migration 体系
 - 服务配置与 Nacos 联动入口可从各服务 `bootstrap.yml` 开始核对
+- 如果需要做整套微服务容器化部署，当前正式入口以 [deploy/compose](../deploy/compose) 为准，不再以 [server/docker](./docker) 作为发布主入口
 
 ## 维护规则
 

@@ -1,0 +1,88 @@
+name: Compose Data Ops
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "执行动作"
+        required: true
+        default: backup
+        type: choice
+        options:
+          - backup
+          - restore
+      target_environment:
+        description: "目标环境"
+        required: true
+        type: environment
+      data_backup_label:
+        description: "数据备份标签；backup 时可留空，restore 时必填"
+        required: false
+        type: string
+      dry_run:
+        description: "是否仅输出计划，不执行真实操作"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compose-data-ops-${{ inputs.target_environment }}
+  cancel-in-progress: false
+
+jobs:
+  run-data-ops:
+    name: 执行 compose 数据操作
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 输出执行摘要
+        run: |
+          echo "动作：${{ inputs.operation }}"
+          echo "目标环境：${{ inputs.target_environment }}"
+          echo "数据备份标签：${{ inputs.data_backup_label }}"
+          echo "Dry Run：${{ inputs.dry_run }}"
+
+      - name: 执行 compose 数据备份
+        if: ${{ inputs.operation == 'backup' }}
+        env:
+          APP_DEPLOY_DIR: ${{ vars.APP_DEPLOY_DIR }}
+          APP_DEPLOY_PORT: ${{ vars.APP_DEPLOY_PORT }}
+          APP_DEPLOY_HOST: ${{ secrets.APP_DEPLOY_HOST }}
+          APP_DEPLOY_USER: ${{ secrets.APP_DEPLOY_USER }}
+          APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          DATA_BACKUP_LABEL: ${{ inputs.data_backup_label }}
+          FILE_UPLOAD_PATH_OVERRIDE: ${{ vars.COMPOSE_FILE_UPLOAD_PATH }}
+        run: |
+          chmod +x deploy/compose/backup-compose-data.sh
+          bash deploy/compose/backup-compose-data.sh
+
+      - name: 执行 compose 数据恢复
+        if: ${{ inputs.operation == 'restore' }}
+        env:
+          APP_DEPLOY_DIR: ${{ vars.APP_DEPLOY_DIR }}
+          APP_DEPLOY_PORT: ${{ vars.APP_DEPLOY_PORT }}
+          APP_DEPLOY_HOST: ${{ secrets.APP_DEPLOY_HOST }}
+          APP_DEPLOY_USER: ${{ secrets.APP_DEPLOY_USER }}
+          APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          DATA_RESTORE_BACKUP: ${{ inputs.data_backup_label }}
+          FILE_UPLOAD_PATH_OVERRIDE: ${{ vars.COMPOSE_FILE_UPLOAD_PATH }}
+        run: |
+          if [[ -z "${DATA_RESTORE_BACKUP}" ]]; then
+            echo "restore 模式必须提供 data_backup_label。" >&2
+            exit 1
+          fi
+          chmod +x deploy/compose/restore-compose-data.sh
+          bash deploy/compose/restore-compose-data.sh

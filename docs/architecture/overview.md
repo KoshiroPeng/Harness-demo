@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-06-09
+last_updated: 2026-06-10
 status: active
 owner: "@PengKang"
 description: HarnessBase 系统架构总览，说明当前若依微服务代码事实、服务拓扑、前端结构、数据脚本与工程护栏。
@@ -159,6 +159,7 @@ flowchart TD
 ## 发布与观测
 
 - 发布支撑材料位于 [deploy/release](../../deploy/release)
+- 整套微服务容器化部署主线位于 [deploy/compose](../../deploy/compose)
 - 本地观测材料位于 [deploy/observability](../../deploy/observability)
 - GitHub Actions 位于 [.github/workflows](../../.github/workflows)，当前主线围绕自动化护栏、后端构建、前端构建、模块级发布与服务级回滚展开
 

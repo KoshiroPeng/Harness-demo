@@ -1,0 +1,286 @@
+services:
+  ruoyi-mysql:
+    image: mysql:5.7
+    container_name: ruoyi-mysql
+    restart: unless-stopped
+    command:
+      - mysqld
+      - --innodb-buffer-pool-size=256M
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+8:00
+      - --lower-case-table-names=1
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ../../server/sql/ry_20260321.sql:/docker-entrypoint-initdb.d/10_ry_20260321.sql:ro
+      - ../../server/sql/ry_config_20260311.sql:/docker-entrypoint-initdb.d/20_ry_config_20260311.sql:ro
+      - ./mysql/initdb/30_ry_config_compose_20260610.sql:/docker-entrypoint-initdb.d/30_ry_config_compose_20260610.sql:ro
+    ports:
+      - "${MYSQL_HOST_PORT}:3306"
+
+  ruoyi-redis:
+    image: redis:7.2-alpine
+    container_name: ruoyi-redis
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ../../server/docker/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "${REDIS_HOST_PORT}:6379"
+
+  ruoyi-nacos:
+    image: nacos/nacos-server:v3.0.2
+    container_name: ruoyi-nacos
+    restart: unless-stopped
+    environment:
+      MODE: standalone
+      SPRING_DATASOURCE_PLATFORM: mysql
+      MYSQL_SERVICE_HOST: ruoyi-mysql
+      MYSQL_SERVICE_PORT: 3306
+      MYSQL_SERVICE_DB_NAME: ${MYSQL_NACOS_DATABASE}
+      MYSQL_SERVICE_USER: root
+      MYSQL_SERVICE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      NACOS_AUTH_ENABLE: ${NACOS_AUTH_ENABLE}
+      NACOS_AUTH_TOKEN: ${NACOS_AUTH_TOKEN}
+      NACOS_AUTH_IDENTITY_KEY: ${NACOS_AUTH_IDENTITY_KEY}
+      NACOS_AUTH_IDENTITY_VALUE: ${NACOS_AUTH_IDENTITY_VALUE}
+    volumes:
+      - ./nacos/conf/application.properties:/home/nacos/conf/application.properties:ro
+      - ./data/nacos/logs:/home/nacos/logs
+    depends_on:
+      ruoyi-mysql:
+        condition: service_healthy
+    ports:
+      - "${NACOS_HTTP_PORT}:8848"
+      - "${NACOS_GRPC_PORT}:9848"
+      - "${NACOS_RAFT_PORT}:9849"
+
+  ruoyi-auth:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/docker/backend.Dockerfile
+      args:
+        APP_JAR_FILE: server/ruoyi-auth/target/ruoyi-auth.jar
+    container_name: ruoyi-auth
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${RUOYI_PROFILE}
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ruoyi-nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ruoyi-nacos:8848
+      JAVA_OPTS: ${JAVA_OPTS}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9200/actuator/health | grep 'UP' >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      ruoyi-redis:
+        condition: service_healthy
+      ruoyi-nacos:
+        condition: service_started
+
+  ruoyi-system:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/docker/backend.Dockerfile
+      args:
+        APP_JAR_FILE: server/ruoyi-modules/ruoyi-system/target/ruoyi-modules-system.jar
+    container_name: ruoyi-system
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${RUOYI_PROFILE}
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ruoyi-nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ruoyi-nacos:8848
+      JAVA_OPTS: ${JAVA_OPTS}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9201/actuator/health | grep 'UP' >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      ruoyi-mysql:
+        condition: service_healthy
+      ruoyi-redis:
+        condition: service_healthy
+      ruoyi-nacos:
+        condition: service_started
+
+  ruoyi-gen:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/docker/backend.Dockerfile
+      args:
+        APP_JAR_FILE: server/ruoyi-modules/ruoyi-gen/target/ruoyi-modules-gen.jar
+    container_name: ruoyi-gen
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${RUOYI_PROFILE}
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ruoyi-nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ruoyi-nacos:8848
+      JAVA_OPTS: ${JAVA_OPTS}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9202/actuator/health | grep 'UP' >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      ruoyi-mysql:
+        condition: service_healthy
+      ruoyi-redis:
+        condition: service_healthy
+      ruoyi-nacos:
+        condition: service_started
+
+  ruoyi-job:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/docker/backend.Dockerfile
+      args:
+        APP_JAR_FILE: server/ruoyi-modules/ruoyi-job/target/ruoyi-modules-job.jar
+    container_name: ruoyi-job
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${RUOYI_PROFILE}
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ruoyi-nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ruoyi-nacos:8848
+      JAVA_OPTS: ${JAVA_OPTS}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9203/actuator/health | grep 'UP' >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      ruoyi-mysql:
+        condition: service_healthy
+      ruoyi-redis:
+        condition: service_healthy
+      ruoyi-nacos:
+        condition: service_started
+
+  ruoyi-file:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/docker/backend.Dockerfile
+      args:
+        APP_JAR_FILE: server/ruoyi-modules/ruoyi-file/target/ruoyi-modules-file.jar
+    container_name: ruoyi-file
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${RUOYI_PROFILE}
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ruoyi-nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ruoyi-nacos:8848
+      JAVA_OPTS: ${JAVA_OPTS}
+    volumes:
+      - ${FILE_UPLOAD_PATH}:/home/ruoyi/uploadPath
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9300/actuator/health | grep 'UP' >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      ruoyi-nacos:
+        condition: service_started
+    ports:
+      - "${FILE_HTTP_PORT}:9300"
+
+  ruoyi-monitor:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/docker/backend.Dockerfile
+      args:
+        APP_JAR_FILE: server/ruoyi-visual/ruoyi-monitor/target/ruoyi-visual-monitor.jar
+    container_name: ruoyi-monitor
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${RUOYI_PROFILE}
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ruoyi-nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ruoyi-nacos:8848
+      JAVA_OPTS: ${JAVA_OPTS}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9100/actuator/health | grep 'UP' >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      ruoyi-nacos:
+        condition: service_started
+    ports:
+      - "${MONITOR_HTTP_PORT}:9100"
+
+  ruoyi-gateway:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/docker/backend.Dockerfile
+      args:
+        APP_JAR_FILE: server/ruoyi-gateway/target/ruoyi-gateway.jar
+    container_name: ruoyi-gateway
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${RUOYI_PROFILE}
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ruoyi-nacos:8848
+      SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ruoyi-nacos:8848
+      SPRING_CLOUD_SENTINEL_DATASOURCE_DS1_NACOS_SERVER_ADDR: ruoyi-nacos:8848
+      SPRING_CLOUD_SENTINEL_EAGER: "false"
+      JAVA_OPTS: ${JAVA_OPTS}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/actuator/health | grep 'UP' >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      ruoyi-auth:
+        condition: service_healthy
+      ruoyi-system:
+        condition: service_healthy
+      ruoyi-gen:
+        condition: service_healthy
+      ruoyi-job:
+        condition: service_healthy
+      ruoyi-file:
+        condition: service_healthy
+      ruoyi-monitor:
+        condition: service_healthy
+      ruoyi-nacos:
+        condition: service_started
+    ports:
+      - "${GATEWAY_HTTP_PORT}:8080"
+
+  ruoyi-nginx:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/docker/frontend-nginx.Dockerfile
+    container_name: ruoyi-nginx
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    depends_on:
+      ruoyi-gateway:
+        condition: service_healthy
+    ports:
+      - "${NGINX_HTTP_PORT}:80"

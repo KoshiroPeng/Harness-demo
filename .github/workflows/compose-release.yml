@@ -1,0 +1,148 @@
+name: Compose Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: "目标环境"
+        required: true
+        type: environment
+      release_version:
+        description: "发布版本号，例如 0.1.0-compose"
+        required: true
+        type: string
+      compose_env_template:
+        description: "使用的环境模板"
+        required: true
+        default: ".env.prod.example"
+        type: choice
+        options:
+          - ".env.example"
+          - ".env.prod.example"
+      dry_run:
+        description: "是否仅输出计划，不执行真实远端部署"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compose-release-${{ inputs.target_environment }}
+  cancel-in-progress: false
+
+jobs:
+  build-compose-bundle:
+    name: 构建 compose 部署包
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 输出环境参数快照
+        run: |
+          echo "目标环境：${{ inputs.target_environment }}"
+          echo "发布版本：${{ inputs.release_version }}"
+          echo "环境模板：${{ inputs.compose_env_template }}"
+          echo "Dry Run：${{ inputs.dry_run }}"
+
+      - name: 设置 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+          cache-dependency-path: server/pom.xml
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: 构建 compose 所需业务制品
+        env:
+          SKIP_FRONTEND_INSTALL: "false"
+        run: bash deploy/compose/build-compose-artifacts.sh
+
+      - name: 准备 compose 环境文件
+        run: cp "deploy/compose/${{ inputs.compose_env_template }}" deploy/compose/.env
+
+      - name: 上传 compose 部署包
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-base-compose-${{ github.run_number }}
+          if-no-files-found: error
+          path: |
+            deploy/compose/**
+            deploy/observability/**
+            server/sql/**
+            server/docker/redis/conf/**
+            server/ruoyi-auth/target/*.jar
+            server/ruoyi-gateway/target/*.jar
+            server/ruoyi-modules/ruoyi-system/target/*.jar
+            server/ruoyi-modules/ruoyi-gen/target/*.jar
+            server/ruoyi-modules/ruoyi-job/target/*.jar
+            server/ruoyi-modules/ruoyi-file/target/*.jar
+            server/ruoyi-visual/ruoyi-monitor/target/*.jar
+            web/dist/**
+
+  approval-gate:
+    name: Compose 环境审批门禁
+    needs: build-compose-bundle
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+
+    steps:
+      - name: 输出审批摘要
+        run: |
+          echo "目标环境：${{ inputs.target_environment }}"
+          echo "发布版本：${{ inputs.release_version }}"
+          echo "说明：请对照 deploy/compose/README.md 与 deploy/release/release-checklist.md 完成审批前检查。"
+
+  deploy-compose:
+    name: 执行 compose 远端部署
+    needs:
+      - build-compose-bundle
+      - approval-gate
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 下载 compose 部署包
+        uses: actions/download-artifact@v4
+        with:
+          name: harness-base-compose-${{ github.run_number }}
+          path: .
+
+      - name: 准备环境文件
+        run: |
+          if [[ ! -f deploy/compose/.env ]]; then
+            cp "deploy/compose/${{ inputs.compose_env_template }}" deploy/compose/.env
+          fi
+
+      - name: 执行 compose 远端部署脚本
+        env:
+          APP_DEPLOY_DIR: ${{ vars.APP_DEPLOY_DIR }}
+          APP_DEPLOY_PORT: ${{ vars.APP_DEPLOY_PORT }}
+          APP_DEPLOY_HOST: ${{ secrets.APP_DEPLOY_HOST }}
+          APP_DEPLOY_USER: ${{ secrets.APP_DEPLOY_USER }}
+          APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          RELEASE_VERSION: ${{ inputs.release_version }}
+          COMPOSE_ENV_FILE_PATH: deploy/compose/.env
+        run: |
+          chmod +x deploy/compose/deploy-compose-via-ssh.sh
+          bash deploy/compose/deploy-compose-via-ssh.sh

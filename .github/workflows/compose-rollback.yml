@@ -1,0 +1,71 @@
+name: Compose Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: "目标环境"
+        required: true
+        type: environment
+      rollback_backup:
+        description: "回滚快照名称，例如 20260610T120000Z-0.1.0-compose"
+        required: true
+        type: string
+      rollback_reason:
+        description: "回滚原因"
+        required: true
+        type: string
+      dry_run:
+        description: "是否仅输出回滚计划，不执行真实回滚"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compose-rollback-${{ inputs.target_environment }}
+  cancel-in-progress: false
+
+jobs:
+  approval-gate:
+    name: Compose 回滚审批门禁
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+
+    steps:
+      - name: 输出回滚摘要
+        run: |
+          echo "目标环境：${{ inputs.target_environment }}"
+          echo "回滚快照：${{ inputs.rollback_backup }}"
+          echo "回滚原因：${{ inputs.rollback_reason }}"
+          echo "Dry Run：${{ inputs.dry_run }}"
+
+  rollback-compose:
+    name: 执行 compose 远端回滚
+    needs: approval-gate
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 执行 compose 回滚脚本
+        env:
+          APP_DEPLOY_DIR: ${{ vars.APP_DEPLOY_DIR }}
+          APP_DEPLOY_PORT: ${{ vars.APP_DEPLOY_PORT }}
+          APP_DEPLOY_HOST: ${{ secrets.APP_DEPLOY_HOST }}
+          APP_DEPLOY_USER: ${{ secrets.APP_DEPLOY_USER }}
+          APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          ROLLBACK_BACKUP: ${{ inputs.rollback_backup }}
+          ROLLBACK_REASON: ${{ inputs.rollback_reason }}
+        run: |
+          chmod +x deploy/compose/rollback-compose-via-ssh.sh
+          bash deploy/compose/rollback-compose-via-ssh.sh
